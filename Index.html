@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#0a0a12" />
+<title>Bella's Brain — JAGS GCSE Feed</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Lexend:wght@300;400;500;600;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --font-display:"Fredoka", system-ui, sans-serif;
+    --font-body:"Lexend", system-ui, sans-serif;
+    --bg:#0a0a12; --panel:#15131f; --panel-2:#1d1a2b;
+    --ink:#f4f1ff; --ink-soft:#b3acce; --ink-dim:#7d769c; --line:rgba(255,255,255,.10);
+    --accent:#ff2d70; --accent-2:#27e0c4; --gold:#ffce4d; --good:#2ee6a0; --bad:#ff5d73;
+    --s-maths:#3f9dff; --s-bio:#22d18a; --s-chem:#ff9d3a; --s-phys:#7c7bff;
+    --s-englang:#ff5e7a; --s-englit:#b07bff; --s-history:#d99a3c; --s-geog:#2bb6a8;
+    --s-rs:#8e7be8; --s-classciv:#e07a5f; --s-compsci:#2bd4d4;
+    --s-french:#5b8def; --s-german:#e0b13c; --s-spanish:#ff7a3c; --s-italian:#36b37e;
+    --s-russian:#d65a8a; --s-japanese:#e0556f; --s-latin:#b58b5a; --s-greek:#6fa8dc;
+    --s-art:#ff6fae; --s-dt:#8b95a7; --s-drama:#ff5d73; --s-music:#b388ff; --s-pe:#4cc38a;
+    --s-default:#8aa6e0; --intensity:1;
+  }
+  [data-calm="1"]{ --intensity:.38; }
+  [data-motion="0"] *{ animation:none!important; transition:none!important; }
+  [data-font="dyslexic"]{ --font-body:"Atkinson Hyperlegible", system-ui, sans-serif; }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ margin:0; padding:0; height:100%; background:var(--bg); color:var(--ink); font-family:var(--font-body); overscroll-behavior:none; }
+  #root{ height:100%; }
+  h1,h2,h3,h4{ font-family:var(--font-display); margin:0; font-weight:600; }
+  button{ font-family:var(--font-body); cursor:pointer; border:none; background:none; color:inherit; }
+  button:focus-visible{ outline:3px solid var(--accent-2); outline-offset:2px; border-radius:10px; }
+  .app{ height:100%; max-width:520px; margin:0 auto; position:relative; background:var(--bg); overflow:hidden; }
+  .feed{ height:100%; overflow-y:scroll; scroll-snap-type:y mandatory; scrollbar-width:none; }
+  .feed::-webkit-scrollbar{ display:none; }
+  .clip{ height:100%; min-height:100%; scroll-snap-align:start; scroll-snap-stop:always; position:relative; overflow:hidden; display:flex; flex-direction:column; justify-content:flex-end; }
+  .clip .bg{ position:absolute; inset:0; z-index:0;
+    background:radial-gradient(120% 80% at 20% 12%, color-mix(in srgb, var(--sc) calc(46% * var(--intensity)), transparent), transparent 60%),
+      radial-gradient(120% 90% at 92% 96%, color-mix(in srgb, var(--accent) calc(30% * var(--intensity)), transparent), transparent 55%),
+      linear-gradient(180deg, #100e1a, #0a0912); }
+  .clip .bg::after{ content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.55) 86%); }
+  .orb{ position:absolute; border-radius:50%; filter:blur(8px); opacity:calc(.5*var(--intensity)); z-index:0; }
+  .orb.a{ width:140px;height:140px; right:-30px; top:14%; background:var(--sc); animation:drift 9s ease-in-out infinite; }
+  .orb.b{ width:90px;height:90px; left:-20px; top:52%; background:var(--accent-2); animation:drift 11s ease-in-out infinite reverse; }
+  @keyframes drift{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-22px); } }
+  .segs{ position:absolute; top:calc(12px + env(safe-area-inset-top)); left:14px; right:14px; z-index:6; display:flex; gap:5px; }
+  .segs .s{ flex:1; height:4px; border-radius:99px; background:rgba(255,255,255,.22); overflow:hidden; }
+  .segs .s > span{ display:block; height:100%; width:0; background:#fff; }
+  .clip-top{ position:absolute; top:calc(28px + env(safe-area-inset-top)); left:16px; right:16px; z-index:6; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .clip-top .subj{ font-family:var(--font-display); font-weight:600; font-size:13px; padding:5px 11px; border-radius:99px; background:rgba(0,0,0,.35); border:1px solid var(--line); backdrop-filter:blur(6px); }
+  .clip-top .dur{ font-size:12px; color:var(--ink-soft); }
+  .stage{ position:relative; z-index:3; flex:1; display:flex; flex-direction:column; justify-content:center; padding:84px 20px 16px; gap:14px; cursor:pointer; }
+  .hook{ font-family:var(--font-display); font-weight:700; font-size:clamp(23px,6.6vw,33px); line-height:1.14; background:linear-gradient(180deg,#fff,#d8d2ff); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .beats{ display:flex; flex-direction:column; gap:10px; }
+  .beat{ font-size:clamp(16px,4.2vw,20px); line-height:1.4; opacity:.28; transition:opacity .35s ease, transform .35s ease; }
+  .beat.on{ opacity:1; font-weight:600; }
+  .beat.on::before{ content:""; display:inline-block; width:9px;height:9px;border-radius:50%; background:var(--sc); margin-right:9px; vertical-align:middle; box-shadow:0 0 14px var(--sc); }
+  .beat.past{ opacity:.5; }
+  .paused-pill{ position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:5; font-size:46px; opacity:.85; pointer-events:none; }
+  .clip-meta{ position:relative; z-index:4; padding:0 84px 96px 18px; }
+  .clip-meta .ttl{ font-family:var(--font-display); font-weight:600; font-size:18px; }
+  .clip-meta .tpc{ color:var(--ink-soft); font-size:13.5px; margin-top:2px; }
+  .chips{ display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+  .chip{ display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:600; padding:8px 12px; border-radius:99px; background:rgba(255,255,255,.10); border:1px solid var(--line); backdrop-filter:blur(8px); }
+  .chip.pulse{ animation:pulse 2.4s ease-in-out infinite; }
+  @keyframes pulse{ 0%,100%{ box-shadow:0 0 0 0 rgba(255,45,112,0);} 50%{ box-shadow:0 0 0 6px rgba(255,45,112,.18);} }
+  .rail{ position:absolute; right:10px; bottom:104px; z-index:5; display:flex; flex-direction:column; align-items:center; gap:17px; }
+  .rail .act{ display:flex; flex-direction:column; align-items:center; gap:3px; }
+  .rail .ic{ width:50px; height:50px; border-radius:50%; display:grid; place-items:center; font-size:23px; background:rgba(255,255,255,.10); border:1px solid var(--line); backdrop-filter:blur(8px); transition:transform .12s ease; }
+  .rail .act:active .ic{ transform:scale(.88); }
+  .rail .ic.on-like{ background:rgba(255,45,112,.22); border-color:rgba(255,45,112,.5); }
+  .rail .ic.on-save{ background:rgba(255,206,77,.20); border-color:rgba(255,206,77,.5); }
+  .rail .lbl{ font-size:11px; font-weight:700; color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.5); }
+  .rail .badge{ width:46px;height:46px;border-radius:14px; display:grid;place-items:center; font-family:var(--font-display); font-weight:700; font-size:18px; color:#fff; box-shadow:0 6px 18px rgba(0,0,0,.4); margin-bottom:2px; }
+  .swipe-hint{ position:absolute; left:0; right:0; bottom:84px; z-index:4; text-align:center; font-size:12px; color:var(--ink-soft); animation:bob 1.8s ease-in-out infinite; pointer-events:none;}
+  @keyframes bob{ 0%,100%{ transform:translateY(0); opacity:.5;} 50%{ transform:translateY(-5px); opacity:1;} }
+  .quiz{ position:absolute; left:12px; right:12px; bottom:88px; z-index:8; background:var(--panel); border:1px solid var(--line); border-radius:22px; padding:18px; box-shadow:0 -10px 40px rgba(0,0,0,.5); animation:slideup .3s ease; }
+  @keyframes slideup{ from{ transform:translateY(20px); opacity:0;} to{ transform:translateY(0); opacity:1;} }
+  .quiz .qh{ font-size:12px; font-weight:700; color:var(--accent-2); text-transform:uppercase; letter-spacing:1px; }
+  .quiz .qq{ font-family:var(--font-display); font-weight:600; font-size:18px; margin:6px 0 12px; }
+  .quiz .opt{ display:block; width:100%; text-align:left; padding:13px 14px; border-radius:14px; background:var(--panel-2); border:1.5px solid var(--line); margin-bottom:8px; font-size:15px; font-weight:500; transition:all .15s ease; }
+  .quiz .opt.correct{ background:rgba(46,230,160,.16); border-color:var(--good); }
+  .quiz .opt.wrong{ background:rgba(255,93,115,.16); border-color:var(--bad); }
+  .quiz .exp{ font-size:14px; color:var(--ink-soft); margin:6px 2px 12px; line-height:1.45; }
+  .quiz .qrow{ display:flex; gap:10px; }
+  .nav{ position:absolute; left:0; right:0; bottom:0; z-index:30; height:62px; display:flex; justify-content:space-around; align-items:center; background:rgba(12,11,20,.82); backdrop-filter:blur(14px); border-top:1px solid var(--line); padding-bottom:env(safe-area-inset-bottom); }
+  .nav button{ display:flex; flex-direction:column; align-items:center; gap:2px; color:var(--ink-dim); font-size:10px; font-weight:600; padding:6px 8px; }
+  .nav button .ni{ font-size:20px; }
+  .nav button.active{ color:#fff; }
+  .nav button.active .ni{ filter:drop-shadow(0 0 10px var(--accent)); }
+  .sheet-back{ position:absolute; inset:0; z-index:40; background:rgba(0,0,0,.55); backdrop-filter:blur(2px); display:flex; align-items:flex-end; animation:fade .2s ease; }
+  @keyframes fade{ from{opacity:0;} to{opacity:1;} }
+  .sheet{ width:100%; max-height:78%; background:var(--panel); border-radius:24px 24px 0 0; border-top:1px solid var(--line); padding:8px 0 calc(16px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; animation:slideup .25s ease; }
+  .sheet .grip{ width:42px;height:5px;border-radius:99px;background:rgba(255,255,255,.25); margin:8px auto 6px; }
+  .sheet .sh-head{ display:flex; align-items:center; justify-content:space-between; padding:6px 18px 10px; }
+  .sheet .sh-body{ overflow-y:auto; padding:0 18px 8px; }
+  .page{ position:absolute; inset:0; bottom:62px; z-index:20; overflow-y:auto; background:var(--bg); padding:calc(18px + env(safe-area-inset-top)) 16px 24px; }
+  .page h2{ font-size:24px; margin-bottom:4px; }
+  .page .sub{ color:var(--ink-soft); font-size:14px; margin-bottom:18px; }
+  .card{ background:var(--panel); border:1px solid var(--line); border-radius:18px; padding:16px; }
+  .card+.card{ margin-top:12px; }
+  .stack{ display:flex; flex-direction:column; gap:12px; }
+  .row{ display:flex; gap:10px; }
+  .between{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .muted{ color:var(--ink-soft); } .dim{ color:var(--ink-dim); }
+  .pill{ display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600; padding:5px 11px; border-radius:99px; background:var(--panel-2); border:1px solid var(--line); color:var(--ink-soft); }
+  .eyebrow{ font-family:var(--font-display); font-weight:600; text-transform:uppercase; letter-spacing:1.2px; font-size:11.5px; color:var(--ink-dim); }
+  .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; background:var(--accent); color:#fff; font-weight:700; padding:13px 16px; border-radius:14px; font-size:15px; }
+  .btn.block{ width:100%; } .btn.cyan{ background:var(--accent-2); color:#06251f; }
+  .btn.ghost{ background:var(--panel-2); color:var(--ink); border:1px solid var(--line); font-weight:600; }
+  .btn.sm{ padding:9px 12px; font-size:13.5px; border-radius:11px; } .btn[disabled]{ opacity:.4; }
+  .bar{ height:10px; border-radius:99px; background:var(--panel-2); overflow:hidden; border:1px solid var(--line); }
+  .bar > span{ display:block; height:100%; border-radius:99px; }
+  .lesson-row{ display:flex; align-items:center; gap:12px; width:100%; text-align:left; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:12px; }
+  .lesson-row .lb{ width:38px;height:38px;border-radius:11px; display:grid;place-items:center; color:#fff; font-family:var(--font-display); font-weight:700; flex:none; font-size:15px; }
+  .lesson-row .lm{ flex:1; min-width:0; } .lesson-row .lm .lt{ font-weight:600; font-size:14.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .lesson-row .lm .ls{ font-size:12px; color:var(--ink-dim); }
+  input[type=text], textarea{ width:100%; font-family:var(--font-body); font-size:15px; color:var(--ink); background:var(--panel-2); border:1.5px solid var(--line); border-radius:12px; padding:12px; }
+  textarea{ resize:vertical; min-height:70px; }
+  .empty{ text-align:center; padding:40px 16px; color:var(--ink-dim); } .empty .ei{ font-size:42px; }
+  .toast{ position:absolute; left:50%; bottom:80px; transform:translateX(-50%); z-index:60; background:#fff; color:#13111c; font-weight:700; padding:11px 18px; border-radius:14px; font-size:14px; box-shadow:0 10px 30px rgba(0,0,0,.4); animation:slideup .25s ease; max-width:88%; }
+  .nudge{ position:absolute; top:calc(48px + env(safe-area-inset-top)); left:12px; right:12px; z-index:25; background:rgba(20,18,30,.92); border:1px solid var(--line); border-radius:16px; padding:12px 14px; backdrop-filter:blur(10px); display:flex; align-items:center; gap:10px; animation:slideup .3s ease; }
+  .nudge .x{ margin-left:auto; font-size:18px; color:var(--ink-soft); padding:4px 8px; }
+  .seg-ctl{ display:flex; background:var(--panel-2); border:1px solid var(--line); border-radius:13px; padding:4px; gap:4px; }
+  .seg-ctl button{ flex:1; padding:9px; border-radius:9px; font-weight:600; font-size:13.5px; color:var(--ink-soft); }
+  .seg-ctl button.on{ background:var(--panel); color:#fff; }
+  .donut{ position:relative; width:120px; height:120px; }
+  .donut .n{ position:absolute; inset:0; display:grid; place-items:center; font-family:var(--font-display); font-weight:700; font-size:30px; }
+  .subj-card{ border-left:5px solid var(--sc,var(--s-default)); }
+  .tchip{ display:inline-block; font-size:12px; font-weight:600; padding:5px 10px; border-radius:99px; margin:0 6px 6px 0; background:var(--panel-2); border:1px solid var(--line); }
+  .tchip.has{ color:#fff; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script type="text/babel" data-presets="react">
+const {useState,useEffect,useRef,useMemo,useCallback} = React;
+/* ============================================================
+   JAGS GCSE CONTENT  (James Allen's Girls' School, 2025-2027)
+   Subjects, sub-topics, exam outcomes, and micro-lessons.
+   No set-text quotation (copyright): literature is covered by
+   theme & technique in plain words.
+   ============================================================ */
+
+/* Subject directory: name, tag, colour key, exam board, paper/outcome list, sub-topics */
+const SUBJECTS = {
+  maths:{name:"Maths", tag:"√", key:"maths", board:"Edexcel (1MA1) · Higher",
+    papers:["3 papers, each 1/3 of grade","1 non-calculator + 2 calculator","Taken summer of Year 11"],
+    topics:["Number","Algebra","Ratio & proportion","Geometry","Trigonometry","Probability","Statistics"]},
+  bio:{name:"Biology", tag:"B", key:"bio", board:"AQA (8461)",
+    papers:["2 papers, 105 min each, equal weight","≥15% marks on practical skills"],
+    topics:["Cell biology","Organisation","Infection & response","Bioenergetics","Homeostasis","Inheritance","Ecology"]},
+  chem:{name:"Chemistry", tag:"C", key:"chem", board:"AQA (8462)",
+    papers:["2 papers, 105 min each, equal weight","≥15% marks on practical skills"],
+    topics:["Atomic structure","Bonding","Quantitative chemistry","Chemical changes","Energy changes","Rates & equilibrium","Organic chemistry","Chemical analysis","Atmosphere"]},
+  phys:{name:"Physics", tag:"P", key:"phys", board:"AQA (8463)",
+    papers:["2 papers, 105 min each, equal weight","≥15% marks on practical skills"],
+    topics:["Energy","Electricity","Particle model","Atomic structure","Forces","Waves","Magnetism","Space"]},
+  englang:{name:"English Language", tag:"EL", key:"englang", board:"Cambridge IGCSE (0990)",
+    papers:["Paper 1: Fiction & Imaginative Writing (40%)","Paper 2: Non-Fiction & Transactional Writing (60%)","Speaking & Listening endorsement (separate)"],
+    topics:["Reading fiction (C19th)","Imaginative writing","Reading non-fiction","Transactional writing","Language techniques"]},
+  englit:{name:"English Literature", tag:"LT", key:"englit", board:"Cambridge IGCSE (0992)",
+    papers:["Paper 1: Poetry & Prose — Hughes & Rebecca (50%)","Paper 2: Drama (25%)","Paper 3: Unseen (25%)"],
+    topics:["Ted Hughes poetry","Rebecca (du Maurier)","Drama","Unseen poetry & prose","Essay skills"]},
+  history:{name:"History", tag:"H", key:"history", board:"Edexcel (1HI0)",
+    papers:["Paper 1: Medicine in Britain + historic environment (30%)","Paper 2: Elizabethan England & Cold War (40%)","Paper 3: Russia 1917–41 (30%)"],
+    topics:["Medicine through time","Early Elizabethan England 1558–88","Superpower relations & the Cold War 1941–91","Russia & the Soviet Union 1917–41"]},
+  geog:{name:"Geography", tag:"G", key:"geog", board:"Edexcel A (1GA0)",
+    papers:["Paper 1: Physical (37.5%)","Paper 2: Human (37.5%)","Paper 3: Fieldwork & UK challenges (25%)"],
+    topics:["Rivers","Coasts","Weather & climate","Ecosystems","Cities (urban)","Development","Water resources","Fieldwork skills"]},
+  rs:{name:"Religious Studies", tag:"RS", key:"rs", board:"AQA Spec A (8062)",
+    papers:["Paper 1: Religions — Christianity & Islam (50%)","Paper 2: Thematic studies (50%)"],
+    topics:["Christianity beliefs","Christianity practices","Islam beliefs","Islam practices","Relationships & families","Religion & life","Peace & conflict","Crime & punishment"]},
+  classciv:{name:"Classical Civilisation", tag:"CC", key:"classciv", board:"OCR (J199)",
+    papers:["Paper 1: Myth and Religion (50%)","Paper 2: Homer & the Homeric World (50%)"],
+    topics:["The Odyssey","Mycenaean Greece","Myth & Religion","Gods & heroes"]},
+  compsci:{name:"Computer Science", tag:"CS", key:"compsci", board:"OCR (J277)",
+    papers:["Paper 1: Computer Systems (50%)","Paper 2: Computational Thinking & Programming (50%)"],
+    topics:["Systems architecture","Memory & storage","Networks","Data representation","Algorithms","Programming","Boolean logic"]},
+  french:{name:"French", tag:"FR", key:"french", board:"AQA (8658) · Higher",
+    papers:["4 papers (25% each): Listening, Reading, Speaking, Writing"],
+    topics:["Identity & culture","Local & global areas","Study & employment","Grammar"]},
+  german:{name:"German", tag:"DE", key:"german", board:"AQA (8668) · Higher",
+    papers:["4 papers (25% each): Listening, Reading, Speaking, Writing"],
+    topics:["Identity & culture","Local & global areas","Study & employment","Grammar"]},
+  spanish:{name:"Spanish", tag:"ES", key:"spanish", board:"AQA (8698) · Higher",
+    papers:["4 papers (25% each): Listening, Reading, Speaking, Writing"],
+    topics:["Identity & culture","Local & global areas","Study & employment","Grammar"]},
+  italian:{name:"Italian", tag:"IT", key:"italian", board:"AQA (8633) · Higher",
+    papers:["4 papers (25% each): Listening, Reading, Speaking, Writing"],
+    topics:["Identity & culture","Local & global areas","Study & employment","Grammar"]},
+  russian:{name:"Russian", tag:"RU", key:"russian", board:"Edexcel (1RU0) · Higher",
+    papers:["4 papers (25% each): Listening, Speaking, Reading, Writing"],
+    topics:["Identity & culture","Local area & travel","School","Study & work","Grammar"]},
+  japanese:{name:"Japanese", tag:"JP", key:"japanese", board:"Edexcel (1JA0)",
+    papers:["4 papers (25% each): Listening, Speaking, Reading, Writing"],
+    topics:["Identity & culture","School","Travel","Future & work","Writing systems"]},
+  latin:{name:"Latin", tag:"LA", key:"latin", board:"OCR (J282)",
+    papers:["Language (50%)","Prose Literature — Tacitus & Pliny (25%)","Verse Literature — Ovid & Catullus (25%)"],
+    topics:["Language & grammar","Prose literature","Verse literature"]},
+  greek:{name:"Classical Greek", tag:"GR", key:"greek", board:"OCR (J292)",
+    papers:["Language (50%)","Prose — Herodotus (25%)","Verse — Euripides' Medea (25%)"],
+    topics:["Language & alphabet","Prose literature","Verse literature"]},
+  art:{name:"Art & Design", tag:"A", key:"art", board:"AQA (8201)",
+    papers:["Component 1: Portfolio (60%)","Component 2: Externally Set Assignment (40%)"],
+    topics:["Formal elements","Assessment objectives","Artist research","Techniques"]},
+  dt:{name:"Design & Technology", tag:"DT", key:"dt", board:"AQA (8552)",
+    papers:["Written exam (50%)","NEA Contextual Challenge (50%)"],
+    topics:["Iterative design","Materials","Sustainability","Manufacturing"]},
+  drama:{name:"Drama", tag:"D", key:"drama", board:"AQA (8261)",
+    papers:["Devising (40%)","Performance of extract (20%)","Written exam (40%)"],
+    topics:["Practitioners","Drama techniques","Devising","Live theatre analysis"]},
+  music:{name:"Music", tag:"♪", key:"music", board:"Edexcel (1MU0)",
+    papers:["Performing (30%)","Composing (30%)","Listening & Appraising (40%)"],
+    topics:["Elements of music","Areas of study","Theory","Performing & composing"]},
+  pe:{name:"Physical Education", tag:"PE", key:"pe", board:"AQA (8582)",
+    papers:["2 written papers (60%)","Practical performance (40%)"],
+    topics:["Anatomy & physiology","Movement analysis","Training & fitness","Sport psychology"]},
+};
+
+const L=(o)=>({id:o.id, subject:o.subject, topic:o.topic, title:o.title, dur:o.dur||"3 min",
+  hook:o.hook, beats:o.beats, transcript:o.transcript, note:o.note, quiz:o.quiz,
+  baseLikes:(900+Math.floor(Math.random()*7000)), baseSaves:(220+Math.floor(Math.random()*1700))});
+
+const LESSONS=[
+/* ---------------- MATHS ---------------- */
+L({id:"ma-quad",subject:"maths",topic:"Algebra",title:"The quadratic formula",hook:"When factorising fails, this always works.",
+  beats:["Solves any ax² + bx + c = 0.","x = ( −b ± √(b²−4ac) ) ÷ 2a","The ± usually gives two answers.","b²−4ac is the discriminant — counts the solutions."],
+  transcript:"The quadratic formula solves any quadratic. Substitute a, b and c carefully and mind the signs. The ± produces two roots. The discriminant b²−4ac tells you how many real solutions there are: positive gives two, zero gives one, negative gives none.",
+  note:"x = ( −b ± √(b²−4ac) ) ÷ 2a",
+  quiz:{q:"In 2x²+3x−5=0, what is 'a'?",opts:["3","2","−5"],answer:1,exp:"'a' is the coefficient of x², which is 2."}}),
+L({id:"ma-complete",subject:"maths",topic:"Algebra",title:"Completing the square",hook:"Rewrite a quadratic to reveal its turning point.",
+  beats:["x² + bx + c → (x + b/2)² − (b/2)² + c","Halve b, square it, subtract it back.","The vertex is at (−b/2, …).","Great for finding max/min without a graph."],
+  transcript:"Completing the square rewrites x²+bx+c as (x+b/2)²−(b/2)²+c. You halve the x-coefficient, square it, and subtract it to keep the value unchanged. The bracket reveals the turning point, useful for sketching and solving.",
+  note:"x² + bx + c = (x + b/2)² − (b/2)² + c",
+  quiz:{q:"Complete the square: x² + 6x.",opts:["(x+3)² − 9","(x+6)² − 36","(x+3)² + 9"],answer:0,exp:"Half of 6 is 3; (x+3)² − 3² = (x+3)² − 9."}}),
+L({id:"ma-surds",subject:"maths",topic:"Number",title:"Simplifying surds",hook:"Roots that won't go — keep them exact.",
+  beats:["A surd is an irrational root like √2.","Split out square factors: √12 = √4 × √3 = 2√3.","√a × √b = √(ab).","Rationalise denominators by multiplying top and bottom."],
+  transcript:"A surd is an irrational root left in exact form. Simplify by factoring out the largest square: √12 becomes 2√3. Use √a×√b=√(ab) to combine. To rationalise a denominator, multiply numerator and denominator by the surd.",
+  note:"√12 = 2√3   ·   √a × √b = √(ab)",
+  quiz:{q:"Simplify √50.",opts:["5√2","2√5","25√2"],answer:0,exp:"√50 = √25 × √2 = 5√2."}}),
+L({id:"ma-indices",subject:"maths",topic:"Number",title:"The laws of indices",hook:"Powers have rules. Learn three, win marks.",
+  beats:["Multiply: add the powers. xᵃ × xᵇ = xᵃ⁺ᵇ","Divide: subtract. xᵃ ÷ xᵇ = xᵃ⁻ᵇ","Power of a power: multiply. (xᵃ)ᵇ = xᵃᵇ","x⁰ = 1, and x⁻ⁿ = 1/xⁿ."],
+  transcript:"The index laws: multiplying powers of the same base adds indices; dividing subtracts; a power raised to a power multiplies. Anything to the power zero is 1, and a negative power means a reciprocal.",
+  note:"xᵃ×xᵇ=xᵃ⁺ᵇ · xᵃ÷xᵇ=xᵃ⁻ᵇ · (xᵃ)ᵇ=xᵃᵇ",
+  quiz:{q:"Simplify x⁵ × x³.",opts:["x⁸","x¹⁵","x²"],answer:0,exp:"Multiplying powers adds the indices: 5+3 = 8."}}),
+L({id:"ma-line",subject:"maths",topic:"Algebra",title:"y = mx + c",hook:"Every straight line, one equation.",
+  beats:["m = gradient (steepness).","c = y-intercept (where it crosses the y-axis).","Gradient = change in y ÷ change in x.","Parallel lines share the same m."],
+  transcript:"A straight line is y=mx+c, where m is the gradient and c the y-intercept. Find the gradient as rise over run. Parallel lines have equal gradients; perpendicular gradients multiply to −1.",
+  note:"y = mx + c   (m = gradient, c = y-intercept)",
+  quiz:{q:"In y = 3x − 2, what is the y-intercept?",opts:["3","−2","2"],answer:1,exp:"c is −2, so the line crosses the y-axis at −2."}}),
+L({id:"ma-pyth",subject:"maths",topic:"Geometry",title:"Pythagoras' theorem",hook:"Right angle? Find the missing side.",
+  beats:["a² + b² = c² (c is the hypotenuse).","Hypotenuse is the longest side, opposite the right angle.","Add the squares to find c; subtract to find a short side.","Only works in right-angled triangles."],
+  transcript:"In a right-angled triangle, a²+b²=c² with c the hypotenuse. Square the two shorter sides and add to find the hypotenuse; to find a shorter side, subtract the known square from the hypotenuse squared, then root.",
+  note:"a² + b² = c²",
+  quiz:{q:"Short sides 6 and 8. Hypotenuse?",opts:["10","14","48"],answer:0,exp:"6²+8² = 36+64 = 100, √100 = 10."}}),
+L({id:"ma-trig",subject:"maths",topic:"Trigonometry",title:"SOH CAH TOA",hook:"Angles and sides in right triangles.",
+  beats:["SOH: sin = opposite ÷ hypotenuse","CAH: cos = adjacent ÷ hypotenuse","TOA: tan = opposite ÷ adjacent","Label sides relative to the angle first."],
+  transcript:"For right-angled triangles, SOHCAHTOA links angles and sides. Identify the hypotenuse, then the opposite and adjacent relative to your angle, and pick the ratio with the two sides you have.",
+  note:"sin=O/H · cos=A/H · tan=O/A",
+  quiz:{q:"Which ratio uses opposite and adjacent?",opts:["sin","cos","tan"],answer:2,exp:"tan = opposite ÷ adjacent (TOA)."}}),
+L({id:"ma-prob",subject:"maths",topic:"Probability",title:"AND vs OR in probability",hook:"Two rules that decide multiply or add.",
+  beats:["AND (both happen) → multiply probabilities.","OR (either happens) → add them.","Independent events don't affect each other.","Tree diagrams make AND/OR visible."],
+  transcript:"For independent events, 'AND' means multiply the probabilities, and 'OR' (mutually exclusive) means add them. Tree diagrams show this: multiply along branches, add between them.",
+  note:"P(A and B) = P(A)×P(B)   ·   P(A or B) = P(A)+P(B)",
+  quiz:{q:"Two fair coins. P(both heads)?",opts:["1/2","1/4","1/8"],answer:1,exp:"AND → multiply: ½ × ½ = ¼."}}),
+L({id:"ma-percent",subject:"maths",topic:"Number",title:"Reverse percentages",hook:"The price after a rise — find the original.",
+  beats:["After a 20% rise, the new value is 120% of the old.","Divide by the multiplier, don't subtract 20%.","Original = new ÷ 1.20.","Common trap: taking 20% off the new price."],
+  transcript:"To reverse a percentage change, divide by the decimal multiplier. A 20% increase means the new amount is 120%, so divide by 1.2 to get the original. Never just subtract the percentage from the new value.",
+  note:"Original = new value ÷ multiplier (e.g. ÷1.20 for +20%)",
+  quiz:{q:"£60 after a 20% rise. Original price?",opts:["£48","£50","£40"],answer:1,exp:"60 ÷ 1.2 = £50."}}),
+
+/* ---------------- BIOLOGY ---------------- */
+L({id:"bio-cell",subject:"bio",topic:"Cell biology",title:"Eukaryotic vs prokaryotic",hook:"Two cell types. One has a nucleus.",
+  beats:["Eukaryotic cells (plant, animal) have a nucleus.","Prokaryotic cells (bacteria) do not — DNA is a loop.","Prokaryotes are much smaller.","Both have a membrane, cytoplasm and ribosomes."],
+  transcript:"Eukaryotic cells, like animal and plant cells, keep their DNA inside a nucleus. Prokaryotic cells such as bacteria have no nucleus; their DNA floats as a single loop, sometimes with small plasmids. Prokaryotes are smaller and simpler.",
+  note:"Eukaryotic = has a nucleus. Prokaryotic (bacteria) = no nucleus, DNA loop.",
+  quiz:{q:"Which lacks a nucleus?",opts:["Animal cell","Bacterial cell","Plant cell"],answer:1,exp:"Bacteria are prokaryotic — no nucleus; DNA is a free loop."}}),
+L({id:"bio-osmo",subject:"bio",topic:"Cell biology",title:"Osmosis vs diffusion",hook:"They sound alike. They're not.",
+  beats:["Diffusion = any particles, high → low concentration.","Osmosis = water only, across a membrane.","Active transport = low → high, needs energy.","Diffusion and osmosis are passive."],
+  transcript:"Diffusion is the net movement of any particles from high to low concentration. Osmosis is specifically water across a partially permeable membrane. Active transport moves substances against the gradient and needs energy from respiration.",
+  note:"Diffusion = any particle. Osmosis = WATER. Active transport = against gradient + energy.",
+  quiz:{q:"Which moves substances against the concentration gradient?",opts:["Diffusion","Osmosis","Active transport"],answer:2,exp:"Active transport goes low → high and requires energy."}}),
+L({id:"bio-enzyme",subject:"bio",topic:"Organisation",title:"Enzymes & the lock and key",hook:"Biological catalysts with a perfect fit.",
+  beats:["Enzymes speed up reactions and aren't used up.","The substrate fits the active site like a key in a lock.","Too hot or wrong pH → the enzyme denatures.","Denatured = active site changes shape, no fit."],
+  transcript:"Enzymes are biological catalysts. Each has an active site shaped to fit a specific substrate — the lock and key model. Outside their optimum temperature and pH the active site changes shape and denatures, so the substrate no longer fits.",
+  note:"Enzyme + substrate fit at the active site. High temp/wrong pH → denatured.",
+  quiz:{q:"What happens to an enzyme that is overheated?",opts:["It speeds up forever","It denatures","It becomes a substrate"],answer:1,exp:"High temperature denatures the enzyme — the active site loses its shape."}}),
+L({id:"bio-photo",subject:"bio",topic:"Bioenergetics",title:"Photosynthesis in one line",hook:"Plants make food from light.",
+  beats:["CO₂ + water → glucose + oxygen.","Powered by light, absorbed by chlorophyll.","Happens in chloroplasts.","Endothermic — it takes energy in."],
+  transcript:"Photosynthesis turns carbon dioxide and water into glucose and oxygen, using light energy captured by chlorophyll in chloroplasts. It is endothermic. Glucose is used for respiration, storage and growth.",
+  note:"CO₂ + H₂O → glucose + O₂ (light + chlorophyll)",
+  quiz:{q:"Where does photosynthesis happen?",opts:["Mitochondria","Chloroplasts","Nucleus"],answer:1,exp:"Chloroplasts contain chlorophyll, which absorbs light."}}),
+L({id:"bio-resp",subject:"bio",topic:"Bioenergetics",title:"Aerobic vs anaerobic respiration",hook:"Energy with or without oxygen.",
+  beats:["Aerobic: glucose + oxygen → CO₂ + water.","Releases lots of energy.","Anaerobic (muscles): glucose → lactic acid.","Anaerobic releases far less energy."],
+  transcript:"Aerobic respiration uses oxygen to release energy efficiently, producing carbon dioxide and water. When oxygen runs short, muscles respire anaerobically, producing lactic acid and much less energy, which causes an oxygen debt.",
+  note:"Aerobic: glucose + O₂ → CO₂ + H₂O. Anaerobic (muscle): glucose → lactic acid.",
+  quiz:{q:"Anaerobic respiration in muscles produces…",opts:["Carbon dioxide only","Lactic acid","Ethanol"],answer:1,exp:"In human muscles, anaerobic respiration makes lactic acid."}}),
+L({id:"bio-insulin",subject:"bio",topic:"Homeostasis",title:"Insulin & blood glucose",hook:"How the body keeps sugar steady.",
+  beats:["Blood glucose too high → pancreas releases insulin.","Insulin makes the liver store glucose as glycogen.","Too low → glucagon releases glucose again.","This is negative feedback."],
+  transcript:"Blood glucose is controlled by the pancreas. When it rises, insulin is released and the liver converts glucose to glycogen. When it falls, glucagon triggers the reverse. This opposing pair is negative feedback. In type 1 diabetes the pancreas makes too little insulin.",
+  note:"High glucose → insulin → store as glycogen. Low → glucagon → release glucose.",
+  quiz:{q:"Which hormone lowers blood glucose?",opts:["Glucagon","Insulin","Adrenaline"],answer:1,exp:"Insulin lowers blood glucose by storing it as glycogen."}}),
+L({id:"bio-genetics",subject:"bio",topic:"Inheritance",title:"Dominant and recessive alleles",hook:"Why traits skip generations.",
+  beats:["Alleles are versions of a gene.","Dominant (capital) shows even with one copy.","Recessive (lower case) needs two copies to show.","Punnett squares predict the ratios."],
+  transcript:"Genes come in versions called alleles. A dominant allele is expressed with just one copy; a recessive allele needs two. Genotype is the alleles present; phenotype is what's shown. A Punnett square predicts offspring ratios.",
+  note:"Dominant shows with one copy; recessive needs two. Genotype = alleles, phenotype = shown.",
+  quiz:{q:"A recessive trait appears only when…",opts:["One recessive allele is present","Two recessive alleles are present","A dominant allele is present"],answer:1,exp:"Recessive traits need two recessive alleles."}}),
+
+/* ---------------- CHEMISTRY ---------------- */
+L({id:"chem-atom",subject:"chem",topic:"Atomic structure",title:"Inside the atom",hook:"Three particles, two charges, one tiny core.",
+  beats:["Protons (+1) and neutrons (0) sit in the nucleus.","Electrons (−1) orbit in shells.","Atomic number = number of protons.","Mass number = protons + neutrons."],
+  transcript:"Atoms have a tiny nucleus of protons (+1) and neutrons (0), with electrons (−1) in shells around it. The atomic number is the proton count; the mass number is protons plus neutrons. Atoms are neutral overall.",
+  note:"Atomic number = protons. Mass number = protons + neutrons.",
+  quiz:{q:"What is the charge of a neutron?",opts:["+1","0","−1"],answer:1,exp:"Neutrons are neutral — charge 0."}}),
+L({id:"chem-iso",subject:"chem",topic:"Atomic structure",title:"Isotopes explained",hook:"Same element, different mass.",
+  beats:["Isotopes have the same protons…","…but different numbers of neutrons.","So same atomic number, different mass number.","Chemically identical, slightly different mass."],
+  transcript:"Isotopes are atoms of the same element with the same number of protons but different numbers of neutrons. They share chemical properties because the electron arrangement is unchanged, but they differ in mass. Relative atomic mass averages the isotopes.",
+  note:"Isotopes: same protons, different neutrons → same chemistry, different mass.",
+  quiz:{q:"Isotopes of an element differ in…",opts:["Protons","Electrons","Neutrons"],answer:2,exp:"Isotopes differ only in neutron number."}}),
+L({id:"chem-bond",subject:"chem",topic:"Bonding",title:"Ionic vs covalent",hook:"Transfer or share — that's the difference.",
+  beats:["Ionic: metal + non-metal, electrons transferred.","Charged ions attract: strong electrostatic bonds.","Covalent: non-metals share electron pairs.","Ionic = high melting point; small covalent = low."],
+  transcript:"Ionic bonding occurs between metals and non-metals: electrons transfer to form ions held by strong electrostatic attraction. Covalent bonding occurs between non-metals sharing pairs of electrons. Ionic compounds melt high; simple covalent molecules melt low.",
+  note:"Ionic = transfer (metal+non-metal). Covalent = share (non-metals).",
+  quiz:{q:"Magnesium + oxygen bond is…",opts:["Covalent","Ionic","Metallic"],answer:1,exp:"Metal + non-metal = ionic bonding."}}),
+L({id:"chem-mole",subject:"chem",topic:"Quantitative chemistry",title:"The mole",hook:"Chemistry's counting unit.",
+  beats:["One mole = 6.02 × 10²³ particles (Avogadro).","Moles = mass ÷ relative formula mass (Mr).","Mass is conserved in reactions.","Lets you predict reacting amounts."],
+  transcript:"A mole is 6.02×10²³ particles. The number of moles equals mass divided by relative formula mass. Because mass is conserved, balanced equations and moles let you calculate exactly how much reacts and forms.",
+  note:"moles = mass ÷ Mr   ·   1 mole = 6.02 × 10²³ particles",
+  quiz:{q:"Moles in 24 g of carbon (Ar = 12)?",opts:["0.5","2","12"],answer:1,exp:"moles = 24 ÷ 12 = 2."}}),
+L({id:"chem-acid",subject:"chem",topic:"Chemical changes",title:"Acids, bases & the pH scale",hook:"0 to 14 — where does it sit?",
+  beats:["pH below 7 = acid; 7 = neutral; above 7 = alkali.","Acid + base → salt + water (neutralisation).","Acid + metal → salt + hydrogen.","Acid + carbonate → salt + water + CO₂."],
+  transcript:"The pH scale runs 0–14: acids below 7, alkalis above. Neutralisation makes a salt and water. Acids react with metals to give a salt and hydrogen, and with carbonates to give a salt, water and carbon dioxide.",
+  note:"Acid+base→salt+water · acid+metal→salt+H₂ · acid+carbonate→salt+water+CO₂",
+  quiz:{q:"A solution of pH 2 is…",opts:["A strong alkali","Neutral","An acid"],answer:2,exp:"pH below 7 means acidic; pH 2 is a fairly strong acid."}}),
+L({id:"chem-rate",subject:"chem",topic:"Rates & equilibrium",title:"Speeding up reactions",hook:"Four levers control reaction rate.",
+  beats:["More collisions = faster reaction (collision theory).","↑ temperature, ↑ concentration/pressure.","↑ surface area (powder beats lumps).","Catalyst lowers activation energy, isn't used up."],
+  transcript:"Reaction rate depends on how often and how energetically particles collide. Raising temperature, concentration, pressure or surface area increases collisions. A catalyst lowers the activation energy and is not consumed.",
+  note:"Faster rate: ↑temp, ↑conc/pressure, ↑surface area, add catalyst.",
+  quiz:{q:"What is NOT used up in a reaction?",opts:["A reactant","A catalyst","A product"],answer:1,exp:"A catalyst speeds the reaction but is recovered unchanged."}}),
+L({id:"chem-oil",subject:"chem",topic:"Organic chemistry",title:"Crude oil & fractional distillation",hook:"One mixture, many useful fuels.",
+  beats:["Crude oil is a mixture of hydrocarbons.","Separated by fractional distillation by boiling point.","Short chains: low boiling, more flammable, top.","Long chains: high boiling, more viscous, bottom."],
+  transcript:"Crude oil is a mixture of hydrocarbons separated by fractional distillation. The column is hot at the bottom and cool at the top, so substances condense at different heights by boiling point. Shorter chains are lighter, more volatile and more flammable.",
+  note:"Fractional distillation separates hydrocarbons by boiling point.",
+  quiz:{q:"Where do short-chain hydrocarbons leave the column?",opts:["The hot bottom","The cool top","The middle only"],answer:1,exp:"Short chains have low boiling points and leave near the cooler top."}}),
+
+/* ---------------- PHYSICS ---------------- */
+L({id:"phys-ohm",subject:"phys",topic:"Electricity",title:"Ohm's law: V = IR",hook:"Voltage, current, resistance — one triangle.",
+  beats:["V = I × R","V = volts, I = amps, R = ohms.","Cover what you want: V over (I R).","More resistance → less current at fixed V."],
+  transcript:"Ohm's law links voltage, current and resistance: V=I×R. Use the formula triangle with V on top. For a fixed voltage, increasing resistance reduces current. It's one of the most-used physics equations.",
+  note:"V = I × R   ·   I = V/R   ·   R = V/I",
+  quiz:{q:"Current 3 A, resistance 4 Ω. Voltage?",opts:["12 V","7 V","1.3 V"],answer:0,exp:"V = I × R = 3 × 4 = 12 V."}}),
+L({id:"phys-power",subject:"phys",topic:"Electricity",title:"Electrical power",hook:"How fast energy is transferred.",
+  beats:["P = V × I (power = voltage × current).","Also P = I²R.","Power is in watts (joules per second).","Energy transferred E = P × t."],
+  transcript:"Electrical power is the rate of energy transfer: P=V×I, also written P=I²R. Power is measured in watts. Total energy transferred is power multiplied by time.",
+  note:"P = V × I = I²R   ·   E = P × t",
+  quiz:{q:"A 12 V device draws 2 A. Power?",opts:["6 W","24 W","14 W"],answer:1,exp:"P = V × I = 12 × 2 = 24 W."}}),
+L({id:"phys-sdt",subject:"phys",topic:"Forces",title:"Speed, distance, time",hook:"The triangle for every motion question.",
+  beats:["speed = distance ÷ time.","Cover what you want: D over (S × T).","Units must match (m/s ← metres, seconds).","Average speed = total distance ÷ total time."],
+  transcript:"Speed equals distance divided by time. Use the formula triangle and keep units consistent. For a whole journey, average speed is total distance over total time, not the average of the speeds.",
+  note:"speed = distance ÷ time",
+  quiz:{q:"120 m in 15 s. Speed?",opts:["8 m/s","105 m/s","0.125 m/s"],answer:0,exp:"speed = 120 ÷ 15 = 8 m/s."}}),
+L({id:"phys-newton",subject:"phys",topic:"Forces",title:"Newton's second law",hook:"Force, mass and acceleration.",
+  beats:["F = m × a.","Bigger force → bigger acceleration.","Bigger mass → smaller acceleration for same force.","Force in newtons, mass in kg, a in m/s²."],
+  transcript:"Newton's second law states force equals mass times acceleration, F=ma. For a given force, heavier objects accelerate less. Resultant force determines acceleration; balanced forces mean constant velocity.",
+  note:"F = m × a",
+  quiz:{q:"5 kg accelerates at 4 m/s². Force?",opts:["20 N","1.25 N","9 N"],answer:0,exp:"F = m × a = 5 × 4 = 20 N."}}),
+L({id:"phys-wave",subject:"phys",topic:"Waves",title:"The wave equation",hook:"Speed, frequency and wavelength.",
+  beats:["wave speed = frequency × wavelength.","v = f λ.","Speed in m/s, f in hertz, λ in metres.","Transverse: vibrations perpendicular; longitudinal: parallel."],
+  transcript:"Wave speed equals frequency times wavelength, v=fλ. Transverse waves vibrate perpendicular to travel (like light); longitudinal vibrate parallel (like sound). The same equation applies to both.",
+  note:"v = f × λ",
+  quiz:{q:"f = 50 Hz, λ = 2 m. Wave speed?",opts:["25 m/s","100 m/s","52 m/s"],answer:1,exp:"v = f × λ = 50 × 2 = 100 m/s."}}),
+L({id:"phys-radio",subject:"phys",topic:"Atomic structure",title:"Alpha, beta, gamma",hook:"Three types of nuclear radiation.",
+  beats:["Alpha: a helium nucleus, stopped by paper.","Beta: a fast electron, stopped by aluminium.","Gamma: a wave, needs thick lead.","Ionising power: alpha > beta > gamma."],
+  transcript:"Radioactive decay emits alpha (a helium nucleus, highly ionising but stopped by paper), beta (a fast electron, stopped by aluminium) or gamma (an electromagnetic wave, needing lead or concrete). Penetration and ionising power are inversely related.",
+  note:"Alpha=paper, Beta=aluminium, Gamma=lead. Ionising: α>β>γ.",
+  quiz:{q:"Which radiation is stopped by a sheet of paper?",opts:["Gamma","Beta","Alpha"],answer:2,exp:"Alpha is the least penetrating — paper stops it."}}),
+
+/* ---------------- ENGLISH LANGUAGE ---------------- */
+L({id:"el-tech",subject:"englang",topic:"Language techniques",title:"Spot the technique",hook:"Name the method, explain the effect.",
+  beats:["Simile: comparison with 'like' or 'as'.","Metaphor: one thing described as another.","Personification: human traits to non-human things.","Always link the device to its effect on the reader."],
+  transcript:"Key techniques: similes compare using like or as; metaphors say something is something else; personification gives human qualities to objects. In the exam, never just spot a device — explain what effect it creates for the reader.",
+  note:"Simile (like/as), metaphor (is), personification (human traits). Always explain the effect.",
+  quiz:{q:"'The wind whispered' is an example of…",opts:["A simile","Personification","A statistic"],answer:1,exp:"Giving the wind the human action of whispering is personification."}}),
+L({id:"el-afor",subject:"englang",topic:"Transactional writing",title:"AFOREST for persuasion",hook:"Writing to persuade? Reach for AFOREST.",
+  beats:["A·lliteration  F·acts  O·pinion","R·hetorical question  E·motive language","S·tatistics  T·riplets","Use them, then analyse their effect."],
+  transcript:"AFOREST is a toolkit for transactional and persuasive writing: Alliteration, Facts, Opinion, Rhetorical question, Emotive language, Statistics, Triplets. Use them deliberately in your own writing and, when reading, link each to its effect.",
+  note:"AFOREST = Alliteration, Facts, Opinion, Rhetorical Q, Emotive, Statistics, Triplets.",
+  quiz:{q:"'Cruel, cold and careless' uses…",opts:["A rhetorical question","Alliteration","A statistic"],answer:1,exp:"Repeated 'c' sounds = alliteration (also a triplet)."}}),
+L({id:"el-c19",subject:"englang",topic:"Reading fiction (C19th)",title:"Reading 19th-century fiction",hook:"Old language, same exam skills.",
+  beats:["Paper 1 gives an unseen C19th prose extract.","Read for narrative and descriptive methods.","Track how the writer builds atmosphere.","Use short embedded quotes, analyse word choice."],
+  transcript:"Paper 1 Section A presents an unseen nineteenth-century fiction extract. Read for how the writer uses narrative voice, structure and description to create atmosphere and character. Support points with short embedded quotations and zoom in on individual word choices.",
+  note:"Paper 1: unseen C19th fiction → analyse narrative & descriptive methods.",
+  quiz:{q:"Paper 1 Section A reading is based on…",opts:["A C19th fiction extract","A modern news article","A poem"],answer:0,exp:"Section A uses an unseen nineteenth-century fiction extract."}}),
+
+/* ---------------- ENGLISH LITERATURE ---------------- */
+L({id:"lt-hughes",subject:"englit",topic:"Ted Hughes poetry",title:"Hughes & the natural world",hook:"Nature, raw and unsentimental.",
+  beats:["Hughes writes nature as powerful and predatory.","Animals often embody instinct and violence.","Watch verbs and sound — they carry energy.","Link form and imagery to meaning."],
+  transcript:"Ted Hughes presents the natural world as forceful and unsentimental, often through animals that embody raw instinct and power. Notice his energetic verbs, sound patterns and imagery, and connect the form of a poem to the ideas it explores. (Discuss in your own words — don't memorise quotes blindly.)",
+  note:"Hughes: nature as powerful/predatory; analyse verbs, sound, imagery, form.",
+  quiz:{q:"A recurring focus in Hughes' poetry is…",opts:["Urban romance","The power of nature","Political satire"],answer:1,exp:"Hughes is known for raw, powerful depictions of the natural world."}}),
+L({id:"lt-rebecca",subject:"englit",topic:"Rebecca (du Maurier)",title:"Rebecca: the haunting absence",hook:"The most important character never appears.",
+  beats:["Rebecca is dead before the novel begins…","…yet dominates Manderley and the narrator.","Themes: jealousy, identity, memory, class.","Mrs Danvers keeps Rebecca's presence alive."],
+  transcript:"In Rebecca, the title character is dead before the story opens, yet her presence overshadows the unnamed narrator and the house, Manderley. Du Maurier explores jealousy, identity and the weight of the past, with Mrs Danvers sustaining Rebecca's haunting influence.",
+  note:"Rebecca: absent yet dominant; themes of jealousy, identity, memory; setting = Manderley.",
+  quiz:{q:"What is notable about the narrator of Rebecca?",opts:["She is never named","She is the villain","She narrates from prison"],answer:0,exp:"The second Mrs de Winter narrates but is never given a first name."}}),
+L({id:"lt-petal",subject:"englit",topic:"Essay skills",title:"The PETAL paragraph",hook:"A clear analytical paragraph, every time.",
+  beats:["P·oint answers the question.","E·vidence — short embedded quote.","T·echnique — name the method.","A·nalysis of effect, then L·ink back."],
+  transcript:"PETAL keeps literature paragraphs tight: Point, Evidence, Technique, Analysis, Link. Make a point that answers the question, embed a brief quote, name the technique, analyse its effect by zooming in on a word, then link back to the question.",
+  note:"PETAL = Point · Evidence · Technique · Analysis · Link.",
+  quiz:{q:"In PETAL, 'A' stands for…",opts:["Answer","Analysis","Argument"],answer:1,exp:"A = Analysis: explaining the effect of the evidence and technique."}}),
+
+/* ---------------- HISTORY ---------------- */
+L({id:"hi-medicine",subject:"history",topic:"Medicine through time",title:"Germ theory changes everything",hook:"1861: the idea that rewired medicine.",
+  beats:["Before: 'miasma' (bad air) was blamed for disease.","1861: Pasteur proved germs cause decay and disease.","Koch later linked specific microbes to specific diseases.","This opened the door to vaccines and antiseptics."],
+  transcript:"For centuries disease was blamed on miasma — bad air. In 1861 Louis Pasteur's Germ Theory showed microorganisms cause disease, and Robert Koch identified specific microbes for specific illnesses. This transformed prevention, surgery and public health.",
+  note:"Pasteur's Germ Theory (1861): microbes cause disease — replaced miasma theory.",
+  quiz:{q:"What did people blame for disease BEFORE germ theory?",opts:["Bacteria","Miasma (bad air)","Viruses"],answer:1,exp:"Miasma theory blamed bad air; germ theory replaced it in 1861."}}),
+L({id:"hi-penicillin",subject:"history",topic:"Medicine through time",title:"Fleming & penicillin",hook:"A mouldy dish that saved millions.",
+  beats:["1928: Fleming noticed mould killing bacteria.","He identified penicillin but couldn't mass-produce it.","Florey & Chain purified and produced it in the 1940s.","WWII demand drove mass production."],
+  transcript:"In 1928 Alexander Fleming observed that Penicillium mould killed bacteria, discovering penicillin. He couldn't mass-produce it, but in the 1940s Florey and Chain developed methods to purify and produce it at scale, spurred by wartime need.",
+  note:"Fleming discovered penicillin (1928); Florey & Chain mass-produced it (1940s).",
+  quiz:{q:"Who first observed penicillin's effect?",opts:["Florey","Fleming","Pasteur"],answer:1,exp:"Alexander Fleming noticed the mould killing bacteria in 1928."}}),
+L({id:"hi-armada",subject:"history",topic:"Early Elizabethan England 1558–88",title:"The Spanish Armada, 1588",hook:"Why Philip's invasion fleet failed.",
+  beats:["1588: Spain sent a huge fleet to invade England.","English fireships scattered them at Calais.","The 'Protestant wind' wrecked many ships.","A major boost to Elizabeth's authority."],
+  transcript:"In 1588 Philip II of Spain launched the Armada to invade Protestant England. English tactics, including fireships at Calais, broke the Spanish formation, and storms — the 'Protestant wind' — destroyed many ships on the way home. The victory strengthened Elizabeth's position.",
+  note:"1588 Armada defeated by English tactics + storms; boosted Elizabeth's authority.",
+  quiz:{q:"In which year was the Spanish Armada defeated?",opts:["1558","1588","1601"],answer:1,exp:"The Armada was defeated in 1588."}}),
+L({id:"hi-settlement",subject:"history",topic:"Early Elizabethan England 1558–88",title:"The Religious Settlement of 1559",hook:"Elizabeth's 'middle way'.",
+  beats:["England was split between Catholics and Protestants.","1559: the Act of Supremacy made Elizabeth Supreme Governor.","The Act of Uniformity set a common prayer book.","A compromise to keep the peace."],
+  transcript:"On her accession Elizabeth faced deep religious division. The 1559 Settlement — the Act of Supremacy and Act of Uniformity — made her Supreme Governor of the Church and imposed a common form of worship, a deliberate 'middle way' to reduce conflict.",
+  note:"1559 Settlement: Act of Supremacy + Act of Uniformity = Elizabeth's 'middle way'.",
+  quiz:{q:"What title did the 1559 Act of Supremacy give Elizabeth?",opts:["Supreme Head","Supreme Governor","Pope of England"],answer:1,exp:"She became Supreme Governor of the Church of England."}}),
+L({id:"hi-cuba",subject:"history",topic:"Superpower relations & the Cold War 1941–91",title:"The Cuban Missile Crisis, 1962",hook:"Thirteen days at the brink.",
+  beats:["1962: USSR placed nuclear missiles in Cuba.","The US imposed a naval blockade.","Kennedy and Khrushchev negotiated a deal.","USSR withdrew; US secretly removed missiles from Turkey."],
+  transcript:"In October 1962 American spy planes found Soviet nuclear missiles in Cuba. Kennedy ordered a naval blockade and after thirteen tense days a deal was struck: the USSR removed the missiles in return for a US pledge not to invade Cuba and the secret removal of US missiles from Turkey.",
+  note:"1962 Cuban Missile Crisis: 13 days; blockade; USSR withdraws missiles after a deal.",
+  quiz:{q:"How did the US first respond to missiles in Cuba?",opts:["Invasion","A naval blockade","A nuclear strike"],answer:1,exp:"Kennedy ordered a naval blockade (a 'quarantine') of Cuba."}}),
+L({id:"hi-berlin",subject:"history",topic:"Superpower relations & the Cold War 1941–91",title:"The Berlin Wall, 1961",hook:"A city, and a world, divided overnight.",
+  beats:["Berlin sat deep inside communist East Germany.","Thousands fled west through the city.","1961: the East built a wall to stop the exodus.","It became the symbol of the Cold War."],
+  transcript:"Divided Berlin let East Germans escape to the West, draining the communist state of workers. In 1961 the East German government built the Berlin Wall to seal the border, which became the defining symbol of the Cold War until it fell in 1989.",
+  note:"1961: Berlin Wall built to stop East→West escapes; symbol of the Cold War (fell 1989).",
+  quiz:{q:"Why was the Berlin Wall built in 1961?",opts:["To attract tourists","To stop East Germans fleeing west","To start a war"],answer:1,exp:"It was built to halt the flow of refugees from East to West."}}),
+L({id:"hi-russia",subject:"history",topic:"Russia & the Soviet Union 1917–41",title:"1917: two revolutions",hook:"The year the Tsar fell — twice over.",
+  beats:["February 1917: the Tsar abdicated; a Provisional Government formed.","It kept Russia in WWI — hugely unpopular.","October 1917: Lenin's Bolsheviks seized power.","Promised 'Peace, Bread, Land'."],
+  transcript:"In February 1917 strikes and mutiny forced Tsar Nicholas II to abdicate, and a Provisional Government took over. Its decision to continue the war was deeply unpopular, and in October the Bolsheviks under Lenin seized power, promising peace, bread and land.",
+  note:"1917: February (Tsar abdicates) then October (Bolsheviks/Lenin seize power).",
+  quiz:{q:"Who led the October 1917 revolution?",opts:["Stalin","Lenin","The Tsar"],answer:1,exp:"Lenin led the Bolsheviks to power in October 1917."}}),
+L({id:"hi-fiveyear",subject:"history",topic:"Russia & the Soviet Union 1917–41",title:"Stalin's Five-Year Plans",hook:"Industrialise — at any human cost.",
+  beats:["From 1928, plans set huge industrial targets.","Focus on coal, steel, iron, machinery.","Output soared, but conditions were brutal.","Collectivisation of farms caused mass famine."],
+  transcript:"From 1928 Stalin's Five-Year Plans set ambitious targets to industrialise the USSR rapidly, prioritising heavy industry. Production rose dramatically but at enormous human cost, while the forced collectivisation of agriculture led to famine and millions of deaths.",
+  note:"Five-Year Plans (from 1928): rapid heavy industry; collectivisation → famine.",
+  quiz:{q:"What did the Five-Year Plans mainly focus on?",opts:["Consumer goods","Heavy industry","Tourism"],answer:1,exp:"They prioritised heavy industry — coal, steel, iron, machinery."}}),
+
+/* ---------------- GEOGRAPHY ---------------- */
+L({id:"geo-river",subject:"geog",topic:"Rivers",title:"How a meander forms",hook:"Why rivers wind instead of running straight.",
+  beats:["Faster water on the outer bend erodes it.","Slower water on the inner bend deposits sediment.","The bend grows more curved over time.","Eventually it can pinch off into an oxbow lake."],
+  transcript:"On a meander, water flows fastest on the outside bend, eroding a steep river cliff, while the slow inside bend deposits a slip-off slope. Over time the curve exaggerates, and the neck can be cut through to leave an oxbow lake.",
+  note:"Meander: outer bend erodes (cliff), inner bend deposits (slip-off) → oxbow lake.",
+  quiz:{q:"On a meander, erosion is greatest on the…",opts:["Inner bend","Outer bend","River bed only"],answer:1,exp:"The faster outer bend erodes; the slower inner bend deposits."}}),
+L({id:"geo-coast",subject:"geog",topic:"Coasts",title:"Longshore drift",hook:"How beaches move sideways.",
+  beats:["Waves hit the beach at an angle (swash).","Backwash pulls straight down the slope.","Material zig-zags along the coast.","Builds spits and shifts beaches."],
+  transcript:"Longshore drift moves sediment along a coast. Swash carries material up the beach at the angle of the wind, while backwash drags it straight back down under gravity. The repeated zig-zag transports sediment, forming features like spits.",
+  note:"Longshore drift: angled swash + straight backwash = zig-zag transport along the coast.",
+  quiz:{q:"Backwash moves material…",opts:["At the wind's angle","Straight down the beach","Out to sea horizontally"],answer:1,exp:"Backwash returns straight down the slope under gravity, creating the zig-zag."}}),
+L({id:"geo-rainforest",subject:"geog",topic:"Ecosystems",title:"Tropical rainforest adaptations",hook:"How life survives the wet and the gloom.",
+  beats:["Tall trees grow fast to reach light (emergents).","Drip-tips shed heavy rain off leaves.","Buttress roots support huge trunks.","Lianas climb others to reach the canopy."],
+  transcript:"Rainforest plants adapt to heavy rain and competition for light. Drip-tip leaves shed water to prevent rot, buttress roots stabilise tall trees in thin soils, and lianas climb trunks to reach the sunlit canopy.",
+  note:"Adaptations: drip-tips (shed rain), buttress roots (support), lianas (reach light).",
+  quiz:{q:"What is the purpose of a drip-tip leaf?",opts:["To store water","To shed heavy rain","To attract insects"],answer:1,exp:"Drip-tips channel rain off quickly so leaves don't rot."}}),
+L({id:"geo-dev",subject:"geog",topic:"Development",title:"Measuring development",hook:"Is GDP enough? No.",
+  beats:["GDP per capita measures wealth — but not wellbeing.","HDI combines income, education and life expectancy.","Single measures can mislead (e.g. oil states).","HDI gives a fuller picture of quality of life."],
+  transcript:"Development can be measured economically with GDP per capita, but money alone misses wellbeing. The Human Development Index (HDI) combines income, education and life expectancy into one score, giving a more rounded measure of quality of life.",
+  note:"HDI = income + education + life expectancy. Broader than GDP alone.",
+  quiz:{q:"HDI combines income, life expectancy and…",opts:["Population","Education","Area"],answer:1,exp:"HDI blends income, life expectancy and education."}}),
+
+/* ---------------- RELIGIOUS STUDIES ---------------- */
+L({id:"rs-trinity",subject:"rs",topic:"Christianity beliefs",title:"The Trinity",hook:"One God, three persons.",
+  beats:["Christians believe in one God…","…as Father, Son and Holy Spirit.","Three persons, one being.","Set out in the Nicene Creed."],
+  transcript:"The Trinity is the Christian belief in one God existing as three persons: Father, Son (Jesus) and Holy Spirit. They are distinct yet one in being. This belief is expressed in the Nicene Creed and shapes Christian worship.",
+  note:"Trinity = one God in three persons: Father, Son, Holy Spirit.",
+  quiz:{q:"The Trinity describes God as…",opts:["Three separate gods","One God in three persons","A single person"],answer:1,exp:"One God in three persons — Father, Son and Holy Spirit."}}),
+L({id:"rs-pillars",subject:"rs",topic:"Islam practices",title:"The Five Pillars of Islam",hook:"The framework of Muslim life.",
+  beats:["Shahadah — declaration of faith.","Salah — five daily prayers.","Zakah — giving to charity.","Sawm — fasting in Ramadan. Hajj — pilgrimage to Mecca."],
+  transcript:"The Five Pillars are the foundations of Sunni Muslim practice: Shahadah (declaration of faith), Salah (five daily prayers), Zakah (almsgiving), Sawm (fasting during Ramadan) and Hajj (pilgrimage to Mecca, made once if able).",
+  note:"5 Pillars: Shahadah, Salah, Zakah, Sawm, Hajj.",
+  quiz:{q:"Which pillar is the pilgrimage to Mecca?",opts:["Salah","Hajj","Zakah"],answer:1,exp:"Hajj is the pilgrimage to Mecca, performed once if able."}}),
+L({id:"rs-tawhid",subject:"rs",topic:"Islam beliefs",title:"Tawhid: the oneness of God",hook:"The most central belief in Islam.",
+  beats:["Tawhid = the absolute oneness of God (Allah).","God has no partners or equals.","God is the creator and sustainer of everything.","It underpins all other Muslim beliefs."],
+  transcript:"Tawhid is the belief in the absolute oneness of God in Islam. Allah is one, with no partners, and is the creator and sustainer of all. This belief underlies every other teaching and practice in Islam.",
+  note:"Tawhid = the oneness of God; the central Muslim belief.",
+  quiz:{q:"Tawhid means…",opts:["The day of judgement","The oneness of God","The pilgrimage"],answer:1,exp:"Tawhid is the belief in the absolute oneness of God."}}),
+
+/* ---------------- CLASSICAL CIVILISATION ---------------- */
+L({id:"cc-xenia",subject:"classciv",topic:"The Odyssey",title:"Xenia: guest-friendship",hook:"The sacred rule that drives the Odyssey.",
+  beats:["Xenia = the duty of hospitality to strangers.","Hosts feed and shelter guests; guests don't abuse it.","Breaking xenia angers the gods.","Many episodes test good vs bad hosts."],
+  transcript:"Xenia is the ancient Greek code of guest-friendship: hosts must welcome, feed and protect strangers, and guests must not exploit that welcome. It is protected by Zeus, and much of the Odyssey contrasts good hosts with those who violate xenia.",
+  note:"Xenia = guest-friendship; a sacred duty protected by Zeus.",
+  quiz:{q:"Xenia in the Odyssey refers to…",opts:["Revenge","Guest-friendship/hospitality","Sea travel"],answer:1,exp:"Xenia is the sacred code of hospitality between host and guest."}}),
+L({id:"cc-nostos",subject:"classciv",topic:"The Odyssey",title:"Nostos & kleos",hook:"Two words at the heart of Homer.",
+  beats:["Nostos = homecoming, the goal of Odysseus.","Kleos = glory or fame won through deeds.","Heroes weigh safe return against lasting fame.","Both shape Odysseus' choices."],
+  transcript:"Two Greek ideas drive Homeric heroes: nostos, the longed-for homecoming, and kleos, the glory or reputation earned by great deeds. Odysseus' journey is a tension between achieving nostos and the kleos he gains along the way.",
+  note:"Nostos = homecoming. Kleos = glory/fame from deeds.",
+  quiz:{q:"'Nostos' means…",opts:["Glory","Homecoming","Hospitality"],answer:1,exp:"Nostos is the theme of homecoming central to the Odyssey."}}),
+
+/* ---------------- COMPUTER SCIENCE ---------------- */
+L({id:"cs-cpu",subject:"compsci",topic:"Systems architecture",title:"The fetch-execute cycle",hook:"How the CPU runs every program.",
+  beats:["Fetch the next instruction from memory.","Decode what it means.","Execute it.","Repeat — billions of times a second."],
+  transcript:"The CPU continuously runs the fetch-decode-execute cycle: it fetches the next instruction from memory, decodes it, then executes it. The control unit directs this, the ALU does calculations, and registers hold data being worked on.",
+  note:"CPU cycle: Fetch → Decode → Execute, repeated continuously.",
+  quiz:{q:"What is the first stage of the cycle?",opts:["Execute","Fetch","Decode"],answer:1,exp:"The CPU fetches the instruction first, then decodes and executes."}}),
+L({id:"cs-binary",subject:"compsci",topic:"Data representation",title:"Why computers use binary",hook:"Everything is 1s and 0s.",
+  beats:["Computers store data as binary (base 2).","Each digit is a bit: on (1) or off (0).","8 bits = 1 byte.","Hex (base 16) is a shorthand for binary."],
+  transcript:"Computers represent all data in binary because transistors are either on or off. Each binary digit is a bit; eight bits make a byte. Hexadecimal (base 16) is a compact way to write long binary numbers.",
+  note:"Binary = base 2; 1 bit = on/off; 8 bits = 1 byte; hex = base 16 shorthand.",
+  quiz:{q:"How many bits are in a byte?",opts:["4","8","16"],answer:1,exp:"One byte is 8 bits."}}),
+L({id:"cs-search",subject:"compsci",topic:"Algorithms",title:"Linear vs binary search",hook:"Two ways to find an item — one much faster.",
+  beats:["Linear search checks each item in turn.","Works on any list, but can be slow.","Binary search repeatedly halves a sorted list.","Binary needs the data sorted first."],
+  transcript:"Linear search checks items one by one and works on any list. Binary search is far faster, repeatedly halving the search range, but the list must be sorted first. Choosing the right algorithm is a core computational-thinking skill.",
+  note:"Linear = check each (any list). Binary = halve a SORTED list (faster).",
+  quiz:{q:"Binary search requires the list to be…",opts:["Sorted","Reversed","Empty"],answer:0,exp:"Binary search only works on a sorted list."}}),
+L({id:"cs-bool",subject:"compsci",topic:"Boolean logic",title:"AND, OR, NOT",hook:"The three logic gates behind everything.",
+  beats:["AND: true only if both inputs are true.","OR: true if at least one input is true.","NOT: flips the input.","Combine them to build any circuit."],
+  transcript:"Boolean logic uses three core gates: AND outputs true only when both inputs are true; OR outputs true if either input is true; NOT inverts the input. Truth tables map every combination, and these gates build all digital circuits.",
+  note:"AND = both true · OR = at least one true · NOT = inverts.",
+  quiz:{q:"An AND gate outputs true when…",opts:["Either input is true","Both inputs are true","Neither input is true"],answer:1,exp:"AND is true only when both inputs are true."}}),
+
+/* ---------------- LANGUAGES (representative) ---------------- */
+L({id:"fr-perfect",subject:"french",topic:"Grammar",title:"French: the perfect tense",hook:"Talk about the past with avoir + past participle.",
+  beats:["Most verbs: use 'avoir' + past participle.","-er verbs → -é (mangé), -ir → -i, -re → -u.","'J'ai mangé' = I ate / I have eaten.","Some verbs (movement) use 'être' instead."],
+  transcript:"The French perfect tense (passé composé) describes completed past actions. Most verbs use the present tense of avoir plus a past participle: -er verbs end -é, -ir end -i, -re end -u. A set of movement and reflexive verbs use être instead, and then the participle agrees.",
+  note:"Perfect tense: avoir (or être) + past participle. -er→é, -ir→i, -re→u.",
+  quiz:{q:"'J'ai ___' (manger, to eat). The participle is…",opts:["mangé","mangi","mangu"],answer:0,exp:"-er verbs form the participle with -é: mangé."}}),
+L({id:"es-serestar",subject:"spanish",topic:"Grammar",title:"Spanish: ser vs estar",hook:"Two verbs for 'to be' — pick the right one.",
+  beats:["'Ser' = permanent traits and identity.","'Estar' = temporary states and location.","Soy alta (I am tall) → ser.","Estoy cansada (I am tired) → estar."],
+  transcript:"Spanish has two verbs for 'to be'. Use ser for permanent characteristics, identity and time. Use estar for temporary states, feelings and location. A handy hint: DOCTOR for ser, PLACE for estar.",
+  note:"Ser = permanent/identity. Estar = temporary state/location.",
+  quiz:{q:"'I am tired' (temporary) uses…",opts:["ser","estar","tener"],answer:1,exp:"Temporary states use estar: estoy cansado/a."}}),
+L({id:"de-word",subject:"german",topic:"Grammar",title:"German: verb second",hook:"The golden rule of German word order.",
+  beats:["In main clauses, the verb is the second idea.","'Heute spiele ich Tennis' — verb (spiele) is 2nd.","The subject can move, the verb stays put.","Time–Manner–Place orders the rest."],
+  transcript:"German main clauses follow the verb-second rule: the conjugated verb is always the second element. If you start with a time phrase, the subject moves after the verb. The remaining details follow Time–Manner–Place order.",
+  note:"Main clause: conjugated verb is ALWAYS the 2nd element.",
+  quiz:{q:"In 'Heute spiele ich Tennis', why is 'spiele' second?",opts:["German verb-second rule","It's a question","By accident"],answer:0,exp:"German main clauses always place the verb as the second element."}}),
+L({id:"la-cases",subject:"latin",topic:"Language & grammar",title:"Latin: noun cases",hook:"Endings, not word order, carry meaning.",
+  beats:["Nominative = the subject (doing the verb).","Accusative = the object (receiving it).","Genitive = 'of' (possession).","The ending tells you the job, not the position."],
+  transcript:"Latin shows a noun's job through its case ending rather than word order. Nominative marks the subject, accusative the object, genitive possession ('of'), dative 'to/for', and ablative 'by/with/from'. Learning the endings unlocks translation.",
+  note:"Cases: Nom (subject), Acc (object), Gen (of), Dat (to/for), Abl (by/with/from).",
+  quiz:{q:"Which case marks the subject of a verb?",opts:["Accusative","Nominative","Genitive"],answer:1,exp:"The nominative case marks the subject."}}),
+
+/* ---------------- CREATIVE / PRACTICAL ---------------- */
+L({id:"pe-fitt",subject:"pe",topic:"Training & fitness",title:"The FITT principle",hook:"How to make training actually work.",
+  beats:["F·requency — how often you train.","I·ntensity — how hard.","T·ime — how long each session.","T·ype — the kind of exercise."],
+  transcript:"FITT structures effective training: Frequency (how often), Intensity (how hard), Time (how long) and Type (which exercise). Adjusting these applies progressive overload so the body adapts and fitness improves.",
+  note:"FITT = Frequency, Intensity, Time, Type.",
+  quiz:{q:"In FITT, what does the 'I' stand for?",opts:["Interval","Intensity","Improvement"],answer:1,exp:"I = Intensity, how hard you train."}}),
+L({id:"pe-aerobic",subject:"pe",topic:"Anatomy & physiology",title:"Aerobic vs anaerobic exercise",hook:"With oxygen, or without.",
+  beats:["Aerobic = with oxygen, longer and steadier.","Anaerobic = without enough oxygen, short and intense.","Anaerobic builds up lactic acid.","Sprinting is anaerobic; jogging is aerobic."],
+  transcript:"Aerobic exercise uses oxygen for sustained, moderate activity like jogging. Anaerobic exercise is short and intense — like sprinting — where oxygen supply can't keep up, producing lactic acid and fatigue.",
+  note:"Aerobic = with O₂ (steady). Anaerobic = without enough O₂ (intense, lactic acid).",
+  quiz:{q:"Which activity is mainly anaerobic?",opts:["A 5 km jog","A 100 m sprint","A gentle walk"],answer:1,exp:"A sprint is short and intense — anaerobic."}}),
+L({id:"music-elements",subject:"music",topic:"Elements of music",title:"Listening: the elements",hook:"What to listen for in the exam.",
+  beats:["Dynamics (loud/soft), Tempo (speed).","Texture (layers), Timbre (tone colour).","Rhythm, Melody, Harmony.","Use these words to describe any extract."],
+  transcript:"For the listening paper, describe music using its elements: dynamics, tempo, texture, timbre, rhythm, melody and harmony. Precise vocabulary lets you analyse any unfamiliar extract and explain how it creates its effect.",
+  note:"Elements: dynamics, tempo, texture, timbre, rhythm, melody, harmony.",
+  quiz:{q:"'Timbre' describes a sound's…",opts:["Speed","Tone colour","Volume"],answer:1,exp:"Timbre is the tone colour or quality of a sound."}}),
+L({id:"drama-prac",subject:"drama",topic:"Practitioners",title:"Stanislavski vs Brecht",hook:"Two opposite ways to make theatre.",
+  beats:["Stanislavski: naturalism — believable, emotional truth.","Actors 'become' the character.","Brecht: epic theatre — remind the audience it's a play.","Brecht wants thinking, not just feeling."],
+  transcript:"Stanislavski developed naturalism, where actors create believable, emotionally truthful characters the audience can lose themselves in. Brecht reacted against this with epic theatre, using techniques to break the illusion so the audience stays critical and thoughtful.",
+  note:"Stanislavski = naturalism/emotional truth. Brecht = epic theatre/critical distance.",
+  quiz:{q:"Which practitioner wanted the audience to stay aware it's a play?",opts:["Stanislavski","Brecht","Neither"],answer:1,exp:"Brecht's epic theatre deliberately breaks the illusion."}}),
+L({id:"art-elements",subject:"art",topic:"Formal elements",title:"The formal elements of art",hook:"The building blocks of any artwork.",
+  beats:["Line, shape, form, tone.","Texture, pattern, colour.","Use them to analyse and to create.","They underpin all four assessment objectives."],
+  transcript:"The formal elements — line, shape, form, tone, texture, pattern and colour — are the building blocks of art. You use them both to analyse artists' work and to develop your own, and they run through all four GCSE assessment objectives.",
+  note:"Formal elements: line, shape, form, tone, texture, pattern, colour.",
+  quiz:{q:"Which is a formal element of art?",opts:["Tone","Tempo","Tense"],answer:0,exp:"Tone (light and dark) is a formal element of art."}}),
+L({id:"dt-sustain",subject:"dt",topic:"Sustainability",title:"The 6 Rs of sustainable design",hook:"Designing with the planet in mind.",
+  beats:["Reduce, Reuse, Recycle.","Refuse, Rethink, Repair.","Cut material and energy use.","Examiners reward sustainable thinking."],
+  transcript:"Sustainable design is guided by the 6 Rs: Reduce, Reuse, Recycle, Refuse, Rethink and Repair. Applying them lowers material and energy use across a product's life cycle, and referencing them strengthens design and evaluation work.",
+  note:"6 Rs: Reduce, Reuse, Recycle, Refuse, Rethink, Repair.",
+  quiz:{q:"Which is one of the 6 Rs?",opts:["Resell","Repair","Restart"],answer:1,exp:"Repair is one of the 6 Rs of sustainable design."}}),
+];
+
+/* ============================================================
+   HELPERS + PERSISTENCE + ENGINE
+   ============================================================ */
+const uid=()=>Math.random().toString(36).slice(2,9);
+const todayStr=()=>new Date().toISOString().slice(0,10);
+const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+const fmtTime=(ms)=>{ const m=Math.floor(ms/60000), s=Math.floor((ms%60000)/1000); return m+"m "+String(s).padStart(2,"0")+"s"; };
+const sc=(k)=>`var(--s-${k}, var(--s-default))`;
+const LESSON_BY_ID=Object.fromEntries(LESSONS.map(l=>[l.id,l]));
+
+const KEY="scrolllearn_jags_v1";
+function blankEng(){ return {views:0, rewatches:0, watchMs:0, completed:0, liked:false, saved:false, skipped:0, quizAttempts:0, quizCorrect:0, comments:[]}; }
+function defaultState(){ return {
+  profile:{ name:"", clipGoal:8, onboarded:false },
+  eng:{}, settings:{ calm:false, motion:1, font:"normal", breaks:true },
+  session:{ completedToday:0, date:todayStr() }, stats:{ totalCompleted:0 },
+}; }
+function load(){ try{ const r=localStorage.getItem(KEY); if(!r) return defaultState(); const s=JSON.parse(r); const d=defaultState();
+  return {...d,...s, profile:{...d.profile,...s.profile}, settings:{...d.settings,...s.settings}, session:{...d.session,...s.session}, stats:{...d.stats,...s.stats}, eng:s.eng||{}}; }catch(e){ return defaultState(); } }
+function save(s){ try{ localStorage.setItem(KEY, JSON.stringify(s)); }catch(e){} }
+
+function engOf(state,id){ return state.eng[id]||blankEng(); }
+function affinity(e){ return (e.liked?3:0)+(e.saved?4:0)+(e.completed>0?2:0)+Math.min(4,e.watchMs/30000)+e.quizCorrect*1.5+e.rewatches*1.5; }
+function gap(e){ if(e.views===0) return 0.55; const wr=e.quizAttempts?(e.quizAttempts-e.quizCorrect)/e.quizAttempts:0.4; const inc=e.completed>0?0:0.5; const sk=clamp(e.skipped*0.25,0,0.6); return clamp(wr*0.55+inc*0.25+sk*0.2,0,1); }
+function topicAggregates(state){ const map={};
+  LESSONS.forEach(l=>{ const k=l.subject+"||"+l.topic; if(!map[k]) map[k]={subject:l.subject,topic:l.topic,lessons:[],aff:0,gp:0,seen:0,correct:0,attempts:0};
+    const e=engOf(state,l.id); map[k].lessons.push(l.id); map[k].aff+=affinity(e); map[k].gp+=gap(e); map[k].seen+=e.views>0?1:0; map[k].correct+=e.quizCorrect; map[k].attempts+=e.quizAttempts; });
+  return Object.values(map).map(t=>({...t, gpAvg:t.gp/t.lessons.length, affAvg:t.aff/t.lessons.length, accuracy:t.attempts?Math.round(100*t.correct/t.attempts):null})); }
+function strengths(state){ return topicAggregates(state).filter(t=>t.seen>0).sort((a,b)=>b.affAvg-a.affAvg).slice(0,3); }
+function focusAreas(state){ return topicAggregates(state).sort((a,b)=>b.gpAvg-a.gpAvg).filter(t=>t.gpAvg>0.35).slice(0,5); }
+function forYouQueue(state){ const scored=LESSONS.map(l=>{ const e=engOf(state,l.id); return {id:l.id,subject:l.subject,g:gap(e),seen:e.views>0,mastered:e.completed>0&&e.quizCorrect>0}; });
+  scored.forEach(s=>{ s.w=s.g*2+(s.seen?0:1.2)+(s.mastered?-1:0)+Math.random()*0.5; }); scored.sort((a,b)=>b.w-a.w);
+  const out=[],buckets={}; scored.forEach(s=>{ (buckets[s.subject]=buckets[s.subject]||[]).push(s.id); }); const keys=Object.keys(buckets); let added=true;
+  while(added){ added=false; for(const k of keys){ if(buckets[k].length){ out.push(buckets[k].shift()); added=true; } } } return out; }
+function pathwayQueue(state){ const fa=focusAreas(state); const ids=[]; fa.forEach(t=>t.lessons.forEach(id=>{ if(!ids.includes(id)) ids.push(id); }));
+  LESSONS.forEach(l=>{ if(engOf(state,l.id).views===0 && !ids.includes(l.id)) ids.push(l.id); }); return ids.length?ids:forYouQueue(state); }
+
+/* ============================================================
+   APP ROOT
+   ============================================================ */
+function App(){
+  const [state,setState]=useState(load);
+  const [view,setView]=useState("feed");
+  const [toast,setToast]=useState(null);
+  const [sheet,setSheet]=useState(null);
+  const [feedQueue,setFeedQueue]=useState(()=>forYouQueue(load()));
+  const [feedMode,setFeedMode]=useState("foryou");
+  const [startId,setStartId]=useState(null);
+
+  useEffect(()=>{ save(state); },[state]);
+  useEffect(()=>{ const r=document.documentElement;
+    r.setAttribute("data-calm", state.settings.calm?1:0); r.setAttribute("data-motion", state.settings.motion?1:0);
+    r.setAttribute("data-font", state.settings.font==="dyslexic"?"dyslexic":"normal"); },[state.settings]);
+  useEffect(()=>{ if(state.session.date!==todayStr()) setState(s=>({...s, session:{completedToday:0, date:todayStr()}})); },[]);
+  const flash=useCallback((m)=>setToast(m),[]);
+  useEffect(()=>{ if(toast){ const t=setTimeout(()=>setToast(null),1900); return ()=>clearTimeout(t);} },[toast]);
+
+  const mutateEng=useCallback((id,patch)=>{ setState(prev=>{ const e={...blankEng(), ...(prev.eng[id]||{})}; const next=typeof patch==="function"?patch(e):{...e,...patch}; return {...prev, eng:{...prev.eng,[id]:next}}; }); },[]);
+  const onComplete=useCallback((id)=>{ setState(prev=>{ const sess=prev.session.date===todayStr()?prev.session:{completedToday:0,date:todayStr()};
+    return {...prev, session:{...sess, completedToday:sess.completedToday+1, date:todayStr()}, stats:{...prev.stats, totalCompleted:prev.stats.totalCompleted+1}}; }); },[]);
+  const playQueue=(ids,mode,start)=>{ if(!ids||!ids.length) return; setFeedQueue(ids); setFeedMode(mode||"custom"); setStartId(start||ids[0]); setView("feed"); };
+  const backToForYou=()=>{ setFeedQueue(forYouQueue(state)); setFeedMode("foryou"); setStartId(null); };
+
+  if(!state.profile.onboarded) return <Onboarding onDone={(name,goal)=>setState(s=>({...s, profile:{...s.profile,name,clipGoal:goal,onboarded:true}}))} />;
+
+  const common={state, mutateEng, onComplete, flash, setSheet, setView};
+  return (
+    <div className="app">
+      {view==="feed" && <Feed {...common} queue={feedQueue} feedMode={feedMode} startId={startId} backToForYou={backToForYou} />}
+      {view==="subjects" && <SubjectsPage state={state} play={playQueue} />}
+      {view==="saved" && <SavedPage state={state} play={playQueue} setView={setView} />}
+      {view==="pathway" && <PathwayPage state={state} play={playQueue} />}
+      {view==="you" && <YouPage state={state} setState={setState} flash={flash} />}
+      {sheet && <Sheet sheet={sheet} state={state} mutateEng={mutateEng} flash={flash} onClose={()=>setSheet(null)} />}
+      {toast && <div className="toast">{toast}</div>}
+      <nav className="nav">
+        {[{k:"feed",i:"🎬",l:"Feed"},{k:"subjects",i:"📚",l:"Subjects"},{k:"saved",i:"🔖",l:"Saved"},{k:"pathway",i:"🧭",l:"Pathway"},{k:"you",i:"📊",l:"You"}].map(it=>(
+          <button key={it.k} className={view===it.k?"active":""} onClick={()=>setView(it.k)}><span className="ni">{it.i}</span>{it.l}</button>
+        ))}
+      </nav>
+    </div>
+  );
+}
+
+/* ---------------- ONBOARDING ---------------- */
+function Onboarding({onDone}){
+  const [name,setName]=useState(""); const [goal,setGoal]=useState(8);
+  return (
+    <div className="app">
+      <div style={{height:"100%", display:"flex", flexDirection:"column", justifyContent:"center", padding:"0 22px", background:"radial-gradient(120% 70% at 30% 10%, rgba(255,45,112,.25), transparent 60%), var(--bg)"}}>
+        <div className="eyebrow">A learning feed, not a doomscroll</div>
+        <h1 style={{fontSize:40, lineHeight:1.05, margin:"6px 0 6px"}}>Bella's <span style={{color:"var(--accent)"}}>Brain</span></h1>
+        <p className="dim" style={{margin:"0 0 4px", fontWeight:600}}>JAGS GCSE · 2025–2027</p>
+        <p className="muted" style={{margin:"0 0 22px", lineHeight:1.5}}>Bite-size lessons across every subject. Like, save and quiz yourself — and it quietly works out where you need help.</p>
+        <div className="card stack">
+          <div><label className="eyebrow" style={{display:"block", marginBottom:6}}>Your name</label>
+            <input type="text" value={name} onChange={e=>setName(e.target.value)} placeholder="Name" /></div>
+          <div><label className="eyebrow" style={{display:"block", marginBottom:6}}>A healthy daily goal</label>
+            <div className="seg-ctl">{[5,8,12].map(g=><button key={g} className={goal===g?"on":""} onClick={()=>setGoal(g)}>{g} clips</button>)}</div>
+            <p className="dim" style={{fontSize:12.5, margin:"8px 2px 0"}}>You'll get a friendly nudge to pause when you hit it.</p></div>
+          <button className="btn block" onClick={()=>onDone(name.trim()||"there", goal)}>Start learning →</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- FEED ---------------- */
+function Feed({state, queue, feedMode, startId, backToForYou, mutateEng, onComplete, flash, setSheet, setView}){
+  const scrollRef=useRef(null);
+  const [activeId,setActiveId]=useState(queue[0]);
+  const [nudge,setNudge]=useState(false);
+  const clipRefs=useRef({});
+  useEffect(()=>{ const id=startId||queue[0]; setActiveId(id); requestAnimationFrame(()=>{ const el=clipRefs.current[id]; if(el) el.scrollIntoView(); }); },[queue,startId]);
+  useEffect(()=>{ const root=scrollRef.current; if(!root) return;
+    const io=new IntersectionObserver((entries)=>{ entries.forEach(en=>{ if(en.isIntersecting && en.intersectionRatio>0.6) setActiveId(en.target.dataset.id); }); },{root, threshold:[0.6]});
+    Object.values(clipRefs.current).forEach(el=>el&&io.observe(el)); return ()=>io.disconnect(); },[queue]);
+  const handleComplete=(id)=>{ onComplete(id); const goal=state.profile.clipGoal; const done=(state.session.date===todayStr()?state.session.completedToday:0)+1; if(state.settings.breaks && done>0 && done%goal===0) setNudge(true); };
+  const scrollNext=()=>{ const root=scrollRef.current; if(root) root.scrollBy({top:root.clientHeight, behavior: state.settings.motion?"smooth":"auto"}); };
+  return (
+    <>
+      {feedMode!=="foryou" && (
+        <button className="pill" style={{position:"absolute", top:"calc(14px + env(safe-area-inset-top))", left:"50%", transform:"translateX(-50%)", zIndex:20, background:"rgba(20,18,30,.85)", backdropFilter:"blur(8px)"}} onClick={backToForYou}>
+          {feedMode==="pathway"?"🧭 Pathway":feedMode==="saved"?"🔖 Saved":feedMode==="subject"?"📚 Subject":"▶ Queue"} · tap for For You
+        </button>
+      )}
+      {nudge && (<div className="nudge"><span style={{fontSize:22}}>🌿</span>
+        <div><div style={{fontWeight:700, fontSize:14}}>{state.session.completedToday} clips today — nice focus.</div>
+          <div className="muted" style={{fontSize:12.5}}>Good moment for a break, or keep going.</div></div>
+        <button className="x" onClick={()=>setNudge(false)}>✕</button></div>)}
+      <div className="feed" ref={scrollRef}>
+        {queue.map(id=>{ const lesson=LESSON_BY_ID[id]; if(!lesson) return null;
+          return (<div key={id} className="clip" data-id={id} ref={el=>clipRefs.current[id]=el} style={{"--sc":sc(lesson.subject)}}>
+            <Clip lesson={lesson} active={activeId===id} state={state} mutateEng={mutateEng} onComplete={handleComplete} flash={flash} setSheet={setSheet} scrollNext={scrollNext} />
+          </div>); })}
+        <div className="clip" style={{"--sc":"var(--accent-2)", justifyContent:"center", alignItems:"center", textAlign:"center", padding:24}}>
+          <div className="bg"></div>
+          <div style={{position:"relative", zIndex:3}}>
+            <div style={{fontSize:46}}>🎉</div><h2 style={{fontSize:24, margin:"8px 0"}}>That's the queue</h2>
+            <p className="muted" style={{maxWidth:300, margin:"0 auto 16px"}}>See your Pathway for what to focus on next, or browse every subject.</p>
+            <button className="btn cyan" onClick={()=>setView("pathway")}>See my pathway →</button>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+/* ---------------- CLIP ---------------- */
+const BEAT_MS=5200;
+function Clip({lesson, active, state, mutateEng, onComplete, flash, setSheet, scrollNext}){
+  const [beat,setBeat]=useState(0);
+  const [playing,setPlaying]=useState(false);
+  const [prog,setProg]=useState(0);
+  const [showQuiz,setShowQuiz]=useState(false);
+  const [picked,setPicked]=useState(null);
+  const e=state.eng[lesson.id]||blankEng();
+  const watchAccum=useRef(0); const enteredOnce=useRef(false); const completedRef=useRef(false);
+  const flushWatch=()=>{ if(watchAccum.current>0){ const ms=watchAccum.current; watchAccum.current=0; mutateEng(lesson.id, prev=>({...prev, watchMs:prev.watchMs+ms})); } };
+  useEffect(()=>{
+    if(active){
+      if(!enteredOnce.current){ enteredOnce.current=true; mutateEng(lesson.id, prev=>({...prev, views:prev.views+1, rewatches: prev.views>0?prev.rewatches+1:prev.rewatches})); }
+      setBeat(0); setProg(0); setShowQuiz(false); setPicked(null); completedRef.current=false; setPlaying(true);
+    } else { flushWatch(); if(enteredOnce.current && !completedRef.current) mutateEng(lesson.id, prev=>({...prev, skipped:prev.skipped+1})); enteredOnce.current=false; setPlaying(false); }
+  },[active]);
+  useEffect(()=>{ if(!active||!playing||showQuiz) return; const tick=120;
+    const t=setInterval(()=>{ watchAccum.current+=tick;
+      setProg(p=>{ const np=p+tick/BEAT_MS;
+        if(np>=1){ setBeat(b=>{ if(b+1>=lesson.beats.length){ completedRef.current=true; flushWatch(); setShowQuiz(true); setPlaying(false); mutateEng(lesson.id, prev=>({...prev, completed:prev.completed+1})); onComplete(lesson.id); return b; } return b+1; }); return 0; }
+        return np; });
+    },tick); return ()=>{ clearInterval(t); flushWatch(); };
+  },[active,playing,showQuiz,beat]);
+  useEffect(()=>{ const t=setInterval(flushWatch,3000); return ()=>clearInterval(t); },[]);
+  const liked=e.liked, saved=e.saved;
+  const likeCount=lesson.baseLikes+(liked?1:0), saveCount=lesson.baseSaves+(saved?1:0);
+  const toggleLike=()=>{ mutateEng(lesson.id, prev=>({...prev, liked:!prev.liked})); if(!liked) flash("Liked — noted as a favourite ❤️"); };
+  const toggleSave=()=>{ mutateEng(lesson.id, prev=>({...prev, saved:!prev.saved})); flash(saved?"Removed from Saved":"Saved to your collection 🔖"); };
+  const share=()=>{ const txt=`${lesson.title} — ${lesson.note}`; if(navigator.clipboard) navigator.clipboard.writeText(txt).catch(()=>{}); flash("Summary copied 📋"); };
+  const answerQuiz=(i)=>{ if(picked!==null) return; setPicked(i); const correct=i===lesson.quiz.answer; mutateEng(lesson.id, prev=>({...prev, quizAttempts:prev.quizAttempts+1, quizCorrect:prev.quizCorrect+(correct?1:0)})); flash(correct?"Correct! ✅":"Not quite — added to your focus areas"); };
+  const replay=()=>{ setShowQuiz(false); setPicked(null); setBeat(0); setProg(0); setPlaying(true); };
+  return (
+    <>
+      <div className="bg"></div><div className="orb a"></div><div className="orb b"></div>
+      <div className="segs">{lesson.beats.map((_,i)=>(<div key={i} className={"s"+(i<beat?" done":"")}><span style={{width: i<beat?"100%": i===beat?`${prog*100}%`:"0%", transition: state.settings.motion?"width .12s linear":"none"}}></span></div>))}</div>
+      <div className="clip-top"><span className="subj" style={{color:sc(lesson.subject)}}>{SUBJECTS[lesson.subject].name}</span><span className="dur">· {lesson.dur}</span></div>
+      <div className="stage" onClick={()=>{ if(!showQuiz) setPlaying(p=>!p); }}>
+        <div className="hook">{lesson.hook}</div>
+        <div className="beats">{lesson.beats.map((b,i)=>(<div key={i} className={"beat"+(i===beat?" on":i<beat?" past":"")}>{b}</div>))}</div>
+        {!playing && !showQuiz && active && <div className="paused-pill">▶</div>}
+      </div>
+      <div className="clip-meta">
+        <div className="ttl">{lesson.title}</div>
+        <div className="tpc">#{SUBJECTS[lesson.subject].name.replace(/\s/g,"")} · {lesson.topic}</div>
+        <div className="chips">
+          <button className="chip" onClick={()=>setSheet({type:"transcript", lessonId:lesson.id})}>📄 Transcript</button>
+          <button className="chip" onClick={()=>setSheet({type:"note", lessonId:lesson.id})}>💡 Key note</button>
+          <button className="chip pulse" onClick={()=>{ setShowQuiz(true); setPlaying(false); }}>✏️ Quiz</button>
+        </div>
+      </div>
+      <div className="rail">
+        <div className="badge" style={{background:sc(lesson.subject)}}>{SUBJECTS[lesson.subject].tag}</div>
+        <button className="act" onClick={toggleLike}><span className={"ic"+(liked?" on-like":"")}>{liked?"❤️":"🤍"}</span><span className="lbl">{likeCount>999?(likeCount/1000).toFixed(1)+"k":likeCount}</span></button>
+        <button className="act" onClick={toggleSave}><span className={"ic"+(saved?" on-save":"")}>{saved?"🔖":"🏷️"}</span><span className="lbl">{saveCount>999?(saveCount/1000).toFixed(1)+"k":saveCount}</span></button>
+        <button className="act" onClick={()=>setSheet({type:"comments", lessonId:lesson.id})}><span className="ic">💬</span><span className="lbl">{e.comments.length||"Q&A"}</span></button>
+        <button className="act" onClick={share}><span className="ic">↗️</span><span className="lbl">Share</span></button>
+      </div>
+      {active && !showQuiz && <div className="swipe-hint">swipe up for next ↑</div>}
+      {showQuiz && (
+        <div className="quiz">
+          <div className="qh">Quick check before you swipe</div>
+          <div className="qq">{lesson.quiz.q}</div>
+          {lesson.quiz.opts.map((o,i)=>{ let cls="opt"; if(picked!==null){ if(i===lesson.quiz.answer) cls+=" correct"; else if(i===picked) cls+=" wrong"; } return <button key={i} className={cls} onClick={()=>answerQuiz(i)}>{o}</button>; })}
+          {picked!==null && <div className="exp">{picked===lesson.quiz.answer?"✅ ":"💡 "}{lesson.quiz.exp}</div>}
+          <div className="qrow"><button className="btn ghost sm" onClick={replay}>↺ Replay</button><button className="btn cyan sm" style={{flex:1}} onClick={scrollNext}>Next clip ↓</button></div>
+        </div>
+      )}
+    </>
+  );
+}
+
+/* ---------------- SHEET ---------------- */
+function Sheet({sheet,state,mutateEng,flash,onClose}){
+  const lesson=LESSON_BY_ID[sheet.lessonId]; const e=state.eng[sheet.lessonId]||blankEng(); const [txt,setTxt]=useState("");
+  if(!lesson) return null;
+  const addComment=()=>{ const v=txt.trim(); if(!v) return; mutateEng(lesson.id, prev=>({...prev, comments:[{id:uid(), text:v, date:todayStr()}, ...prev.comments]})); setTxt(""); flash("Note saved 💬"); };
+  return (
+    <div className="sheet-back" onClick={onClose}>
+      <div className="sheet" onClick={ev=>ev.stopPropagation()}>
+        <div className="grip"></div>
+        <div className="sh-head"><strong style={{fontFamily:"var(--font-display)"}}>{sheet.type==="transcript"?"📄 Transcript":sheet.type==="note"?"💡 Key note":"💬 Notes & questions"}</strong><button className="pill" onClick={onClose}>Close</button></div>
+        <div className="sh-body">
+          <div className="pill" style={{marginBottom:12, color:sc(lesson.subject)}}>{SUBJECTS[lesson.subject].name} · {lesson.topic}</div>
+          {sheet.type==="transcript" && <p style={{lineHeight:1.6, fontSize:15.5}}>{lesson.transcript}</p>}
+          {sheet.type==="note" && <div className="card" style={{background:"var(--panel-2)", fontSize:16, lineHeight:1.5}}>{lesson.note}</div>}
+          {sheet.type==="comments" && (
+            <div className="stack">
+              <p className="muted" style={{fontSize:13.5, margin:0}}>Jot a question or note-to-self for this lesson, to revisit anything that confused you.</p>
+              <div className="row"><input type="text" value={txt} onChange={ev=>setTxt(ev.target.value)} placeholder="e.g. why is c the longest side?" onKeyDown={ev=>{ if(ev.key==="Enter") addComment(); }} /><button className="btn sm" onClick={addComment}>Add</button></div>
+              {e.comments.length===0 && <div className="empty"><span className="ei">💬</span><p>No notes yet.</p></div>}
+              {e.comments.map(c=>(<div key={c.id} className="card" style={{background:"var(--panel-2)"}}><div style={{fontSize:14.5}}>{c.text}</div><div className="dim" style={{fontSize:11.5, marginTop:4}}>{c.date}</div></div>))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- SUBJECTS LIBRARY ---------------- */
+function SubjectsPage({state, play}){
+  const [open,setOpen]=useState(null);
+  const groups=[
+    {label:"Core", keys:["maths","englang","englit","bio","chem","phys"]},
+    {label:"Humanities", keys:["history","geog","rs","classciv"]},
+    {label:"Computing & creative", keys:["compsci","art","dt","drama","music","pe"]},
+    {label:"Languages", keys:["french","german","spanish","italian","russian","japanese","latin","greek"]},
+  ];
+  return (
+    <div className="page">
+      <h2>All subjects 📚</h2>
+      <p className="sub">Every JAGS GCSE — exam board, papers and topics. Tap a subject to expand and study.</p>
+      {groups.map(g=>(
+        <div key={g.label} style={{marginBottom:18}}>
+          <div className="eyebrow" style={{margin:"0 2px 10px"}}>{g.label}</div>
+          <div className="stack">
+            {g.keys.map(k=>{ const s=SUBJECTS[k]; const lessons=LESSONS.filter(l=>l.subject===k); const isOpen=open===k;
+              return (
+                <div key={k} className="card subj-card" style={{"--sc":sc(k)}}>
+                  <button className="between" style={{width:"100%", background:"none", textAlign:"left"}} onClick={()=>setOpen(isOpen?null:k)}>
+                    <div className="row" style={{alignItems:"center"}}>
+                      <span className="lb" style={{width:38,height:38,borderRadius:11,display:"grid",placeItems:"center",color:"#fff",fontFamily:"var(--font-display)",fontWeight:700, background:sc(k)}}>{s.tag}</span>
+                      <div><div style={{fontFamily:"var(--font-display)", fontWeight:600, fontSize:16}}>{s.name}</div><div className="dim" style={{fontSize:12}}>{s.board}</div></div>
+                    </div>
+                    <span className="pill">{lessons.length?lessons.length+" clips":"soon"} {isOpen?"▲":"▼"}</span>
+                  </button>
+                  {isOpen && (
+                    <div style={{marginTop:14}}>
+                      <div className="eyebrow" style={{marginBottom:6}}>Assessment</div>
+                      {s.papers.map((p,i)=>(<div key={i} className="muted" style={{fontSize:13.5, marginBottom:4}}>• {p}</div>))}
+                      <div className="eyebrow" style={{margin:"12px 0 8px"}}>Topics</div>
+                      <div>{s.topics.map(tp=>{ const has=lessons.some(l=>l.topic===tp); const tl=lessons.filter(l=>l.topic===tp);
+                        return <button key={tp} className={"tchip"+(has?" has":"")} style={has?{background:sc(k), borderColor:"transparent"}:{}} onClick={()=>{ if(has) play(tl.map(l=>l.id),"subject",tl[0].id); }}>{tp}{has?` · ${tl.length}`:""}</button>; })}</div>
+                      {lessons.length>0 && <button className="btn block sm" style={{marginTop:12, background:sc(k)}} onClick={()=>play(lessons.map(l=>l.id),"subject")}>▶ Play all {lessons.length} {s.name} clips</button>}
+                      {lessons.length===0 && <p className="dim" style={{fontSize:12.5, marginTop:10}}>Lessons for this subject are coming. Topics and outcomes are shown above for revision planning.</p>}
+                    </div>
+                  )}
+                </div>
+              ); })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ---------------- SAVED ---------------- */
+function SavedPage({state, play, setView}){
+  const saved=LESSONS.filter(l=>(state.eng[l.id]||{}).saved);
+  const liked=LESSONS.filter(l=>(state.eng[l.id]||{}).liked);
+  const bySubject={}; saved.forEach(l=>{ (bySubject[l.subject]=bySubject[l.subject]||[]).push(l); });
+  return (
+    <div className="page">
+      <h2>Your collections 🔖</h2>
+      <p className="sub">Save now, learn deeply later — this beats the scroll-and-forget trap.</p>
+      {saved.length===0 ? (
+        <div className="card empty"><span className="ei">🔖</span><p>Nothing saved yet. Tap the 🏷️ on any clip to keep it here.</p><button className="btn ghost sm" onClick={()=>setView("feed")}>Back to feed</button></div>
+      ) : (
+        <>
+          <button className="btn cyan block" style={{marginBottom:16}} onClick={()=>play(saved.map(l=>l.id),"saved")}>▶ Play all {saved.length} saved</button>
+          {Object.entries(bySubject).map(([subj,list])=>(
+            <div key={subj} style={{marginBottom:18}}>
+              <div className="eyebrow" style={{margin:"0 2px 8px", color:sc(subj)}}>{SUBJECTS[subj].name}</div>
+              <div className="stack">{list.map(l=>(
+                <button key={l.id} className="lesson-row" onClick={()=>play(saved.map(x=>x.id),"saved",l.id)}>
+                  <span className="lb" style={{background:sc(l.subject)}}>{SUBJECTS[l.subject].tag}</span>
+                  <span className="lm"><span className="lt">{l.title}</span><span className="ls">{l.topic} · {l.dur}</span></span><span className="pill">▶</span>
+                </button>))}</div>
+            </div>
+          ))}
+        </>
+      )}
+      {liked.length>0 && (
+        <div style={{marginTop:8}}>
+          <div className="eyebrow" style={{margin:"0 2px 8px"}}>❤️ Liked ({liked.length})</div>
+          <div className="stack">{liked.map(l=>(
+            <button key={l.id} className="lesson-row" onClick={()=>play(liked.map(x=>x.id),"custom",l.id)}>
+              <span className="lb" style={{background:sc(l.subject)}}>{SUBJECTS[l.subject].tag}</span>
+              <span className="lm"><span className="lt">{l.title}</span><span className="ls">{l.topic}</span></span><span className="pill">▶</span>
+            </button>))}</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ---------------- PATHWAY ---------------- */
+function PathwayPage({state, play}){
+  const seenCount=LESSONS.filter(l=>(state.eng[l.id]||{}).views>0).length;
+  const str=strengths(state); const foc=focusAreas(state); const queue=pathwayQueue(state);
+  return (
+    <div className="page">
+      <h2>Your pathway 🧭</h2>
+      <p className="sub">Built from what you watch, save, like and answer — it learns where to send you next.</p>
+      {seenCount<2 ? (
+        <div className="card empty"><span className="ei">🧭</span><p>Watch a few clips first. Then this maps your strengths, your gaps and a plan to close them.</p><button className="btn block cyan" style={{marginTop:8}} onClick={()=>play(forYouQueue(state),"foryou")}>▶ Start the feed</button></div>
+      ) : (
+        <>
+          <div className="card" style={{background:"linear-gradient(135deg, rgba(255,45,112,.18), rgba(39,224,196,.12))", borderColor:"transparent"}}>
+            <div className="eyebrow">Recommended next</div>
+            <h3 style={{fontSize:19, margin:"6px 0 4px"}}>{queue.length} clips lined up</h3>
+            <p className="muted" style={{fontSize:13.5, margin:"0 0 12px"}}>Prioritising your focus areas, then anything new.</p>
+            <button className="btn block" onClick={()=>play(queue,"pathway")}>▶ Play my pathway</button>
+          </div>
+          {foc.length>0 && (
+            <div style={{marginTop:18}}>
+              <div className="eyebrow" style={{margin:"0 2px 10px"}}>🎯 Focus areas — needs another look</div>
+              <div className="stack">{foc.map(t=>(
+                <div key={t.subject+t.topic} className="card">
+                  <div className="between"><div><strong style={{fontFamily:"var(--font-display)"}}>{t.topic}</strong><div className="dim" style={{fontSize:12}}>{SUBJECTS[t.subject].name}{t.accuracy!=null?` · ${t.accuracy}% quiz accuracy`:" · not quizzed yet"}</div></div>
+                    <button className="btn sm" onClick={()=>play(t.lessons,"pathway",t.lessons[0])}>Review</button></div>
+                  <div className="bar" style={{marginTop:10}}><span style={{width:`${Math.round(t.gpAvg*100)}%`, background:"linear-gradient(90deg,var(--gold),var(--bad))"}}></span></div>
+                </div>))}</div>
+            </div>
+          )}
+          {str.length>0 && (
+            <div style={{marginTop:18}}>
+              <div className="eyebrow" style={{margin:"0 2px 10px"}}>💪 Your strengths</div>
+              <div className="stack">{str.map(t=>(
+                <div key={t.subject+t.topic} className="card between"><div><strong style={{fontFamily:"var(--font-display)"}}>{t.topic}</strong><div className="dim" style={{fontSize:12}}>{SUBJECTS[t.subject].name}{t.accuracy!=null?` · ${t.accuracy}% accuracy`:""}</div></div><span className="pill" style={{color:sc(t.subject)}}>strong</span></div>))}</div>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+/* ---------------- YOU ---------------- */
+function YouPage({state,setState,flash}){
+  let watch=0,attempts=0,correct=0,completed=0;
+  LESSONS.forEach(l=>{ const e=state.eng[l.id]||blankEng(); watch+=e.watchMs; attempts+=e.quizAttempts; correct+=e.quizCorrect; completed+=e.completed>0?1:0; });
+  const acc=attempts?Math.round(100*correct/attempts):0;
+  const set=(k,v)=>setState(s=>({...s, settings:{...s.settings,[k]:v}}));
+  const exportData=()=>{ const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"}); const u=URL.createObjectURL(blob); const a=document.createElement("a"); a.href=u; a.download=`scrolllearn-backup-${todayStr()}.json`; a.click(); URL.revokeObjectURL(u); };
+  const importData=(ev)=>{ const f=ev.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>{ try{ const d=JSON.parse(r.result); if(d&&d.eng){ save(d); location.reload(); } else flash("That file doesn't look right."); }catch(err){ flash("Couldn't read that file."); } }; r.readAsText(f); };
+  const pct=Math.round(100*completed/LESSONS.length); const R=52, CIRC=2*Math.PI*R;
+  const subjWithLessons=Object.values(SUBJECTS).filter(su=>LESSONS.some(l=>l.subject===su.key));
+  return (
+    <div className="page">
+      <h2>You 📊</h2>
+      <p className="sub">{state.profile.name}'s learning, by the numbers.</p>
+      <div className="card" style={{display:"flex", alignItems:"center", gap:18}}>
+        <div className="donut"><svg width="120" height="120" viewBox="0 0 120 120"><circle cx="60" cy="60" r={R} fill="none" stroke="var(--panel-2)" strokeWidth="12"/><circle cx="60" cy="60" r={R} fill="none" stroke="var(--accent)" strokeWidth="12" strokeLinecap="round" strokeDasharray={CIRC} strokeDashoffset={CIRC*(1-pct/100)} transform="rotate(-90 60 60)"/></svg><div className="n">{pct}%</div></div>
+        <div><div style={{fontFamily:"var(--font-display)", fontWeight:700, fontSize:20}}>{completed} / {LESSONS.length}</div><div className="muted" style={{fontSize:13}}>lessons completed</div><div className="muted" style={{fontSize:13, marginTop:8}}>{state.session.date===todayStr()?state.session.completedToday:0} done today · goal {state.profile.clipGoal}</div></div>
+      </div>
+      <div className="row" style={{marginTop:12, gap:12}}>
+        <div className="card" style={{flex:1, textAlign:"center"}}><div style={{fontSize:24}}>⏱️</div><div style={{fontFamily:"var(--font-display)",fontWeight:700,fontSize:18}}>{fmtTime(watch)}</div><div className="dim" style={{fontSize:12}}>watch time</div></div>
+        <div className="card" style={{flex:1, textAlign:"center"}}><div style={{fontSize:24}}>🎯</div><div style={{fontFamily:"var(--font-display)",fontWeight:700,fontSize:18}}>{acc}%</div><div className="dim" style={{fontSize:12}}>quiz accuracy</div></div>
+      </div>
+      <div className="card" style={{marginTop:12}}>
+        <div className="eyebrow" style={{marginBottom:10}}>Mastery by subject</div>
+        <div className="stack">{subjWithLessons.map(su=>{ const ls=LESSONS.filter(l=>l.subject===su.key); const done=ls.filter(l=>(state.eng[l.id]||{}).completed>0).length; const p=ls.length?Math.round(100*done/ls.length):0;
+          return (<div key={su.key}><div className="between" style={{marginBottom:5}}><span style={{fontSize:13.5, fontWeight:600}}>{su.name}</span><span className="dim" style={{fontSize:12}}>{done}/{ls.length}</span></div><div className="bar"><span style={{width:`${p}%`, background:sc(su.key)}}></span></div></div>); })}</div>
+      </div>
+      <div className="card" style={{marginTop:12}}>
+        <div className="eyebrow" style={{marginBottom:10}}>Comfort & focus</div>
+        <div className="stack">
+          <div><div style={{fontSize:13.5, fontWeight:600, marginBottom:6}}>Calm mode (low stimulation)</div><div className="seg-ctl"><button className={!state.settings.calm?"on":""} onClick={()=>set("calm",false)}>Vivid</button><button className={state.settings.calm?"on":""} onClick={()=>set("calm",true)}>Calm</button></div></div>
+          <div><div style={{fontSize:13.5, fontWeight:600, marginBottom:6}}>Animations</div><div className="seg-ctl"><button className={state.settings.motion?"on":""} onClick={()=>set("motion",1)}>On</button><button className={!state.settings.motion?"on":""} onClick={()=>set("motion",0)}>Reduced</button></div></div>
+          <div><div style={{fontSize:13.5, fontWeight:600, marginBottom:6}}>Reading font</div><div className="seg-ctl"><button className={state.settings.font==="normal"?"on":""} onClick={()=>set("font","normal")}>Standard</button><button className={state.settings.font==="dyslexic"?"on":""} onClick={()=>set("font","dyslexic")}>Hyperlegible</button></div></div>
+          <div><div style={{fontSize:13.5, fontWeight:600, marginBottom:6}}>Break reminders</div><div className="seg-ctl"><button className={state.settings.breaks?"on":""} onClick={()=>set("breaks",true)}>On</button><button className={!state.settings.breaks?"on":""} onClick={()=>set("breaks",false)}>Off</button></div></div>
+        </div>
+      </div>
+      <div className="card" style={{marginTop:12}}>
+        <div className="eyebrow" style={{marginBottom:10}}>Backup</div>
+        <p className="muted" style={{fontSize:13, margin:"0 0 10px"}}>Progress is stored on this device. Export now and then to keep it safe.</p>
+        <div className="row"><button className="btn ghost sm" onClick={exportData}>⬇ Export</button><label className="btn ghost sm" style={{cursor:"pointer"}}>⬆ Import<input type="file" accept="application/json" onChange={importData} style={{display:"none"}}/></label></div>
+      </div>
+      <p className="dim" style={{textAlign:"center", fontSize:11.5, marginTop:14}}>Bella's Brain · JAGS GCSE 2025–2027 · v2</p>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
