@@ -1,6 +1,6 @@
 # Bella's Brain
 
-A TikTok-style GCSE microlearning feed built for the JAGS (James Allen's Girls' School) 2025-2027 course, covering all 24 subjects with their exam boards, papers and topics. Swipe through bite-size lessons, take quick quizzes, save collections, and let the app build a personalised pathway from what you watch, like and answer.
+A TikTok-style GCSE microlearning feed covering all 24 subjects with their exam boards, papers and topics (2025-2027 specifications). Swipe through bite-size lessons, take quick quizzes, save collections, and let the app build a personalised pathway from what you watch, like and answer.
 
 It is a single-file app (React via CDN) and works as an installable PWA, so it can be added to a phone's home screen and opened fullscreen. It stores progress on the device.
 

@@ -1,7 +1,7 @@
 {
   "name": "Bella's Brain",
   "short_name": "Bella's Brain",
-  "description": "A TikTok-style GCSE microlearning feed for JAGS (2025-2027), with quizzes, saved collections and a personalised pathway.",
+  "description": "A TikTok-style GCSE microlearning feed with quizzes, saved collections and a personalised pathway.",
   "lang": "en-GB",
   "start_url": "./",
   "scope": "./",

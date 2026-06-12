@@ -93,8 +93,8 @@
   .quiz .exp{ font-size:14px; color:var(--ink-soft); margin:6px 2px 12px; line-height:1.45; }
   .quiz .qrow{ display:flex; gap:10px; }
   .nav{ position:absolute; left:0; right:0; bottom:0; z-index:30; height:62px; display:flex; justify-content:space-around; align-items:center; background:rgba(12,11,20,.82); backdrop-filter:blur(14px); border-top:1px solid var(--line); padding-bottom:env(safe-area-inset-bottom); }
-  .nav button{ display:flex; flex-direction:column; align-items:center; gap:2px; color:var(--ink-dim); font-size:10px; font-weight:600; padding:6px 8px; }
-  .nav button .ni{ font-size:20px; }
+  .nav button{ flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; gap:2px; color:var(--ink-dim); font-size:9.5px; font-weight:600; padding:6px 2px; }
+  .nav button .ni{ font-size:19px; }
   .nav button.active{ color:#fff; }
   .nav button.active .ni{ filter:drop-shadow(0 0 10px var(--accent)); }
   .sheet-back{ position:absolute; inset:0; z-index:40; background:rgba(0,0,0,.55); backdrop-filter:blur(2px); display:flex; align-items:flex-end; animation:fade .2s ease; }
@@ -148,7 +148,7 @@
 <script type="text/babel" data-presets="react">
 const {useState,useEffect,useRef,useMemo,useCallback} = React;
 /* ============================================================
-   JAGS GCSE CONTENT  (James Allen's Girls' School, 2025-2027)
+   GCSE CONTENT  (2025-2027 specifications)
    Subjects, sub-topics, exam outcomes, and micro-lessons.
    No set-text quotation (copyright): literature is covered by
    theme & technique in plain words.
@@ -602,7 +602,7 @@ const fmtTime=(ms)=>{ const m=Math.floor(ms/60000), s=Math.floor((ms%60000)/1000
 const sc=(k)=>`var(--s-${k}, var(--s-default))`;
 const LESSON_BY_ID=Object.fromEntries(LESSONS.map(l=>[l.id,l]));
 
-const KEY="scrolllearn_jags_v1";
+const KEY="bellas_brain_v1";
 function blankEng(){ return {views:0, rewatches:0, watchMs:0, completed:0, liked:false, saved:false, skipped:0, quizAttempts:0, quizCorrect:0, comments:[]}; }
 function defaultState(){ return {
   profile:{ name:"", clipGoal:8, onboarded:false },
@@ -634,7 +634,7 @@ function pathwayQueue(state){ const fa=focusAreas(state); const ids=[]; fa.forEa
    ============================================================ */
 function App(){
   const [state,setState]=useState(load);
-  const [view,setView]=useState("feed");
+  const [view,setView]=useState("home");
   const [toast,setToast]=useState(null);
   const [sheet,setSheet]=useState(null);
   const [feedQueue,setFeedQueue]=useState(()=>forYouQueue(load()));
@@ -660,6 +660,7 @@ function App(){
   const common={state, mutateEng, onComplete, flash, setSheet, setView};
   return (
     <div className="app">
+      {view==="home" && <HomePage state={state} setView={setView} play={playQueue} startFeed={()=>playQueue(forYouQueue(state),"foryou")} />}
       {view==="feed" && <Feed {...common} queue={feedQueue} feedMode={feedMode} startId={startId} backToForYou={backToForYou} />}
       {view==="subjects" && <SubjectsPage state={state} play={playQueue} />}
       {view==="saved" && <SavedPage state={state} play={playQueue} setView={setView} />}
@@ -668,10 +669,80 @@ function App(){
       {sheet && <Sheet sheet={sheet} state={state} mutateEng={mutateEng} flash={flash} onClose={()=>setSheet(null)} />}
       {toast && <div className="toast">{toast}</div>}
       <nav className="nav">
-        {[{k:"feed",i:"🎬",l:"Feed"},{k:"subjects",i:"📚",l:"Subjects"},{k:"saved",i:"🔖",l:"Saved"},{k:"pathway",i:"🧭",l:"Pathway"},{k:"you",i:"📊",l:"You"}].map(it=>(
+        {[{k:"home",i:"🏠",l:"Home"},{k:"feed",i:"🎬",l:"Feed"},{k:"subjects",i:"📚",l:"Subjects"},{k:"saved",i:"🔖",l:"Saved"},{k:"pathway",i:"🧭",l:"Pathway"},{k:"you",i:"📊",l:"You"}].map(it=>(
           <button key={it.k} className={view===it.k?"active":""} onClick={()=>setView(it.k)}><span className="ni">{it.i}</span>{it.l}</button>
         ))}
       </nav>
+    </div>
+  );
+}
+
+/* ---------------- HOME / LANDING ---------------- */
+function HomePage({state, setView, play, startFeed}){
+  let watch=0,attempts=0,correct=0,completed=0;
+  LESSONS.forEach(l=>{ const e=state.eng[l.id]||blankEng(); watch+=e.watchMs; attempts+=e.quizAttempts; correct+=e.quizCorrect; completed+=e.completed>0?1:0; });
+  const acc=attempts?Math.round(100*correct/attempts):0;
+  const doneToday=state.session.date===todayStr()?state.session.completedToday:0;
+  const goal=state.profile.clipGoal||8;
+  const goalPct=clamp(Math.round(100*doneToday/goal),0,100);
+  const hour=new Date().getHours();
+  const greet=hour<12?"Good morning":hour<18?"Good afternoon":"Good evening";
+  const seen=LESSONS.filter(l=>(state.eng[l.id]||{}).views>0).length;
+  const foc=focusAreas(state);
+  const savedCount=LESSONS.filter(l=>(state.eng[l.id]||{}).saved).length;
+  const tiles=[
+    {k:"subjects", i:"📚", t:"Subjects", s:Object.keys(SUBJECTS).length+" subjects", c:"var(--s-maths)"},
+    {k:"pathway", i:"🧭", t:"Pathway", s:"Your focus plan", c:"var(--accent-2)"},
+    {k:"saved", i:"🔖", t:"Saved", s:(savedCount?savedCount+" saved":"Collections"), c:"var(--gold)"},
+    {k:"you", i:"📊", t:"You", s:"Stats & settings", c:"var(--s-bio)"},
+  ];
+  return (
+    <div className="page" style={{paddingTop:"calc(26px + env(safe-area-inset-top))"}}>
+      <div style={{position:"absolute", inset:0, height:260, background:"radial-gradient(120% 80% at 20% 0%, rgba(255,45,112,.30), transparent 60%), radial-gradient(120% 80% at 95% 8%, rgba(39,224,196,.18), transparent 55%)", pointerEvents:"none", zIndex:0}}></div>
+      <div style={{position:"relative", zIndex:1}}>
+        <div className="dim" style={{fontWeight:600, fontSize:13.5}}>{greet}, {state.profile.name} 👋</div>
+        <h1 style={{fontSize:38, lineHeight:1.05, margin:"4px 0 2px"}}>Bella's <span style={{color:"var(--accent)"}}>Brain</span></h1>
+        <p className="muted" style={{margin:"0 0 18px", fontSize:14}}>Pick up where you left off, or explore something new.</p>
+
+        <div className="card" style={{borderColor:"transparent", background:"linear-gradient(135deg, rgba(255,45,112,.22), rgba(39,224,196,.14))"}}>
+          <div className="between" style={{marginBottom:10}}>
+            <div><div className="eyebrow" style={{color:"var(--ink-soft)"}}>Today</div>
+              <div style={{fontFamily:"var(--font-display)", fontWeight:700, fontSize:20, marginTop:2}}>{doneToday} of {goal} clips</div></div>
+            <div style={{fontFamily:"var(--font-display)", fontWeight:700, fontSize:22, color:"#fff"}}>{goalPct}%</div>
+          </div>
+          <div className="bar" style={{marginBottom:14}}><span style={{width:goalPct+"%", background:"linear-gradient(90deg, var(--accent), var(--accent-2))"}}></span></div>
+          <button className="btn block" onClick={startFeed}>{seen>0?"▶ Continue learning":"▶ Start the feed"}</button>
+        </div>
+
+        <div className="row" style={{gap:12, marginTop:12}}>
+          <div className="card" style={{flex:1, textAlign:"center", padding:14}}><div style={{fontSize:22}}>✅</div><div style={{fontFamily:"var(--font-display)", fontWeight:700, fontSize:17}}>{completed}</div><div className="dim" style={{fontSize:11.5}}>completed</div></div>
+          <div className="card" style={{flex:1, textAlign:"center", padding:14}}><div style={{fontSize:22}}>🎯</div><div style={{fontFamily:"var(--font-display)", fontWeight:700, fontSize:17}}>{acc}%</div><div className="dim" style={{fontSize:11.5}}>quiz acc.</div></div>
+          <div className="card" style={{flex:1, textAlign:"center", padding:14}}><div style={{fontSize:22}}>⏱️</div><div style={{fontFamily:"var(--font-display)", fontWeight:700, fontSize:17}}>{Math.round(watch/60000)}m</div><div className="dim" style={{fontSize:11.5}}>studied</div></div>
+        </div>
+
+        {foc.length>0 && (
+          <div className="card" style={{marginTop:12}}>
+            <div className="between">
+              <div><div className="eyebrow" style={{marginBottom:3}}>🎯 Today's focus</div>
+                <strong style={{fontFamily:"var(--font-display)"}}>{foc[0].topic}</strong>
+                <div className="dim" style={{fontSize:12}}>{SUBJECTS[foc[0].subject].name}</div></div>
+              <button className="btn sm" onClick={()=>play(foc[0].lessons,"pathway",foc[0].lessons[0])}>Review</button>
+            </div>
+          </div>
+        )}
+
+        <div className="eyebrow" style={{margin:"20px 2px 10px"}}>Jump to</div>
+        <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:12}}>
+          {tiles.map(t=>(
+            <button key={t.k} className="card" style={{textAlign:"left", borderLeft:"5px solid "+t.c}} onClick={()=>setView(t.k)}>
+              <div style={{fontSize:26}}>{t.i}</div>
+              <div style={{fontFamily:"var(--font-display)", fontWeight:600, fontSize:16, marginTop:6}}>{t.t}</div>
+              <div className="dim" style={{fontSize:12}}>{t.s}</div>
+            </button>
+          ))}
+        </div>
+        <p className="dim" style={{textAlign:"center", fontSize:11.5, margin:"20px 0 4px"}}>🏠 Home is always one tap away in the bar below.</p>
+      </div>
     </div>
   );
 }
@@ -684,7 +755,7 @@ function Onboarding({onDone}){
       <div style={{height:"100%", display:"flex", flexDirection:"column", justifyContent:"center", padding:"0 22px", background:"radial-gradient(120% 70% at 30% 10%, rgba(255,45,112,.25), transparent 60%), var(--bg)"}}>
         <div className="eyebrow">A learning feed, not a doomscroll</div>
         <h1 style={{fontSize:40, lineHeight:1.05, margin:"6px 0 6px"}}>Bella's <span style={{color:"var(--accent)"}}>Brain</span></h1>
-        <p className="dim" style={{margin:"0 0 4px", fontWeight:600}}>JAGS GCSE · 2025–2027</p>
+        <p className="dim" style={{margin:"0 0 4px", fontWeight:600}}>GCSE · 2025–2027</p>
         <p className="muted" style={{margin:"0 0 22px", lineHeight:1.5}}>Bite-size lessons across every subject. Like, save and quiz yourself — and it quietly works out where you need help.</p>
         <div className="card stack">
           <div><label className="eyebrow" style={{display:"block", marginBottom:6}}>Your name</label>
@@ -852,7 +923,7 @@ function SubjectsPage({state, play}){
   return (
     <div className="page">
       <h2>All subjects 📚</h2>
-      <p className="sub">Every JAGS GCSE — exam board, papers and topics. Tap a subject to expand and study.</p>
+      <p className="sub">Every GCSE subject — exam board, papers and topics. Tap a subject to expand and study.</p>
       {groups.map(g=>(
         <div key={g.label} style={{marginBottom:18}}>
           <div className="eyebrow" style={{margin:"0 2px 10px"}}>{g.label}</div>
@@ -1010,7 +1081,7 @@ function YouPage({state,setState,flash}){
         <p className="muted" style={{fontSize:13, margin:"0 0 10px"}}>Progress is stored on this device. Export now and then to keep it safe.</p>
         <div className="row"><button className="btn ghost sm" onClick={exportData}>⬇ Export</button><label className="btn ghost sm" style={{cursor:"pointer"}}>⬆ Import<input type="file" accept="application/json" onChange={importData} style={{display:"none"}}/></label></div>
       </div>
-      <p className="dim" style={{textAlign:"center", fontSize:11.5, marginTop:14}}>Bella's Brain · JAGS GCSE 2025–2027 · v2</p>
+      <p className="dim" style={{textAlign:"center", fontSize:11.5, marginTop:14}}>Bella's Brain · GCSE 2025–2027 · v2</p>
     </div>
   );
 }
