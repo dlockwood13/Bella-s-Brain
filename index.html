@@ -93,8 +93,8 @@
   .quiz .exp{ font-size:14px; color:var(--ink-soft); margin:6px 2px 12px; line-height:1.45; }
   .quiz .qrow{ display:flex; gap:10px; }
   .nav{ position:absolute; left:0; right:0; bottom:0; z-index:30; height:62px; display:flex; justify-content:space-around; align-items:center; background:rgba(12,11,20,.82); backdrop-filter:blur(14px); border-top:1px solid var(--line); padding-bottom:env(safe-area-inset-bottom); }
-  .nav button{ flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; gap:2px; color:var(--ink-dim); font-size:9.5px; font-weight:600; padding:6px 2px; }
-  .nav button .ni{ font-size:19px; }
+  .nav button{ flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; gap:1px; color:var(--ink-dim); font-size:8.5px; font-weight:600; padding:6px 1px; letter-spacing:-.1px; }
+  .nav button .ni{ font-size:18px; }
   .nav button.active{ color:#fff; }
   .nav button.active .ni{ filter:drop-shadow(0 0 10px var(--accent)); }
   .sheet-back{ position:absolute; inset:0; z-index:40; background:rgba(0,0,0,.55); backdrop-filter:blur(2px); display:flex; align-items:flex-end; animation:fade .2s ease; }
@@ -138,6 +138,13 @@
   .subj-card{ border-left:5px solid var(--sc,var(--s-default)); }
   .tchip{ display:inline-block; font-size:12px; font-weight:600; padding:5px 10px; border-radius:99px; margin:0 6px 6px 0; background:var(--panel-2); border:1px solid var(--line); }
   .tchip.has{ color:#fff; }
+  .teeel{ display:flex; flex-direction:column; gap:9px; margin-top:10px; }
+  .teeel-row{ display:flex; gap:10px; }
+  .teeel-badge{ flex:none; width:26px; height:26px; border-radius:8px; display:grid; place-items:center; font-family:var(--font-display); font-weight:700; font-size:13px; color:#0a0a12; }
+  .teeel-row .tl{ font-weight:700; font-size:10.5px; text-transform:uppercase; letter-spacing:.6px; color:var(--ink-dim); display:block; margin-bottom:2px; }
+  .teeel-row .tx{ font-size:14px; line-height:1.5; }
+  .rev-sec{ border-left:4px solid var(--sc,var(--s-default)); }
+  .rev-sub{ margin-top:12px; padding-left:12px; border-left:2px dashed var(--line); }
 </style>
 </head>
 <body>
@@ -602,6 +609,539 @@ const fmtTime=(ms)=>{ const m=Math.floor(ms/60000), s=Math.floor((ms%60000)/1000
 const sc=(k)=>`var(--s-${k}, var(--s-default))`;
 const LESSON_BY_ID=Object.fromEntries(LESSONS.map(l=>[l.id,l]));
 
+/* ============================================================
+   REVISION DEEP-DIVES — TEEEL (Topic, Explain, Evidence, Evaluate, Link)
+   Every section and sub-section follows TEEEL. te = {t,e,ev,va,l}
+   ============================================================ */
+const REVISION = [
+ { id:"resistance", title:"Resistance", subject:"phys", icon:"⚡", blurb:"Ohm's law, I-V graphs, the factors that change resistance, series & parallel",
+   sections:[
+     { h:"What is resistance?", te:{
+       t:"Resistance opposes the flow of electric charge around a circuit.",
+       e:"It measures how hard it is for current to pass; energy is transferred to the component and surroundings, usually as heat. It is measured in ohms (Ω).",
+       ev:"Defined by R = V ÷ I. A 12 V supply driving 3 A through a component has resistance 12 ÷ 3 = 4 Ω.",
+       va:"Higher resistance means a smaller current for the same voltage. Don't confuse resistance (a property of the component) with current (the flow itself).",
+       l:"Resistance is the foundation of Ohm's law and every series and parallel calculation." }},
+     { h:"Ohm's law and the I-V relationship", te:{
+       t:"For an ohmic conductor at constant temperature, current is directly proportional to voltage.",
+       e:"Doubling the voltage doubles the current, so the resistance stays constant.",
+       ev:"V = I × R. The I-V graph of a fixed resistor is a straight line through the origin.",
+       va:"Ohm's law only holds at constant temperature; if the component heats up, resistance changes. The straight-line graph is the exam signal of an ohmic conductor.",
+       l:"This sets up the comparison between ohmic and non-ohmic components." }},
+     { h:"Ohmic vs non-ohmic components", te:{
+       t:"Different components have different I-V characteristics.",
+       e:"A fixed resistor is ohmic, but a filament lamp and a diode are not.",
+       ev:"Their I-V graphs have distinct shapes: a straight line, an S-curve, and a one-direction curve.",
+       va:"You must be able to recognise and sketch each graph and explain its shape.",
+       l:"The shapes are explained by how each component responds to current and heat." },
+       subs:[
+        { h:"Fixed resistor (ohmic)", te:{
+          t:"A fixed resistor keeps a constant resistance.",
+          e:"Current stays proportional to voltage as long as temperature is constant.",
+          ev:"Its I-V graph is a straight line through the origin, the same in both directions.",
+          va:"It is the benchmark ohmic conductor and the simplest graph to recognise.",
+          l:"Used as the reference against which other components are compared." }},
+        { h:"Filament lamp (non-ohmic)", te:{
+          t:"A filament lamp's resistance increases as it gets hotter.",
+          e:"A larger current heats the filament, its ions vibrate more, electrons collide more often, so resistance rises.",
+          ev:"The I-V graph is an S-shaped curve whose gradient decreases as voltage rises.",
+          va:"A common error is saying current 'just isn't proportional' without mentioning the heating cause.",
+          l:"Shows exactly why Ohm's law requires constant temperature." }},
+        { h:"Diode", te:{
+          t:"A diode only lets current flow in one direction.",
+          e:"It has very high resistance in the reverse direction.",
+          ev:"Its I-V graph shows almost no current until a small forward voltage, then a sharp rise; nothing flows in reverse.",
+          va:"Used to protect circuits and convert a.c. to d.c.; an LED is a light-emitting diode.",
+          l:"Connects to semiconductors and circuit protection." }},
+       ]},
+     { h:"Factors affecting resistance", te:{
+       t:"The resistance of a wire depends on its length, cross-sectional area, material and temperature.",
+       e:"Longer, thinner, hotter wires resist current more.",
+       ev:"In the required practical, varying the length of a wire and measuring R shows the pattern.",
+       va:"For a fair test, control the other variables (same material, thickness, temperature).",
+       l:"Explains the design of heating elements and low-resistance connecting wires." },
+       subs:[
+        { h:"Length", te:{
+          t:"Resistance is directly proportional to length.",
+          e:"Electrons collide with more ions along a longer path.",
+          ev:"Doubling the length doubles the resistance (R ∝ L) — a straight line through the origin on an R-L graph.",
+          va:"This is the key required-practical result; connecting wires are kept short to minimise resistance.",
+          l:"Links directly to the Ohm's-law measuring method." }},
+        { h:"Cross-sectional area", te:{
+          t:"Resistance is inversely proportional to cross-sectional area.",
+          e:"A thicker wire gives electrons more room, so fewer collisions.",
+          ev:"Doubling the area halves the resistance.",
+          va:"Explains why thick cables can carry large currents safely.",
+          l:"Relevant to choosing safe mains cabling." }},
+        { h:"Temperature", te:{
+          t:"For most metals, resistance increases with temperature.",
+          e:"Hotter metal ions vibrate more and impede the flow of electrons.",
+          ev:"Seen in the filament-lamp graph; a thermistor does the opposite.",
+          va:"Keep currents low and brief in experiments to stop the wire heating and skewing results.",
+          l:"Leads into thermistors as temperature sensors." }},
+        { h:"Material", te:{
+          t:"Different materials have different resistances.",
+          e:"This depends on how freely electrons move within them.",
+          ev:"Copper has low resistance (used for wires); nichrome has high resistance (used for heating elements).",
+          va:"Material choice is a design decision based on the job required.",
+          l:"Connects circuit theory to real component design." }},
+       ]},
+     { h:"Resistors in series and parallel", te:{
+       t:"The total resistance of a circuit depends on how the resistors are arranged.",
+       e:"Series adds resistance; parallel reduces it.",
+       ev:"Series: R = R₁ + R₂ + …  Parallel: total is less than the smallest branch.",
+       va:"A frequent exam slip is treating parallel like series — the total must drop, not rise.",
+       l:"Determines how household and component circuits behave." },
+       subs:[
+        { h:"Series", te:{
+          t:"In series, resistances add up.",
+          e:"Current passes through each resistor in turn, so total opposition increases.",
+          ev:"Two 4 Ω resistors in series give 8 Ω. The current is the same everywhere; the voltages add up to the supply.",
+          va:"Adding more components in series increases total resistance and dims them.",
+          l:"Explains single-loop circuits like old fairy-light chains." }},
+        { h:"Parallel", te:{
+          t:"In parallel, total resistance is less than the smallest single resistor.",
+          e:"Extra branches give current more routes, so overall resistance falls.",
+          ev:"Two equal resistors in parallel give half the value. Voltage is the same across each branch; branch currents add.",
+          va:"Home wiring is parallel so every device gets the full mains voltage and can switch independently.",
+          l:"Explains household ring-main circuits." }},
+       ]},
+     { h:"Thermistors and LDRs", te:{
+       t:"Thermistors and LDRs are components whose resistance changes with their surroundings.",
+       e:"A thermistor's resistance falls as temperature rises; an LDR's resistance falls as light intensity rises.",
+       ev:"Thermistors are used in thermostats; LDRs in automatic lights and camera light meters.",
+       va:"Their behaviour is the opposite of a metal wire (whose resistance rises with temperature) — a common confusion.",
+       l:"They are the basis of automatic sensing circuits." }},
+     { h:"Required practical — investigating resistance", te:{
+       t:"Investigate how the length of a wire affects its resistance.",
+       e:"Vary the length, keep material, thickness and temperature constant, measure voltage and current, then calculate R = V ÷ I.",
+       ev:"Plotting R against length gives a straight line through the origin, confirming R ∝ L.",
+       va:"Use a low current for short times so the wire doesn't heat up and change its resistance.",
+       l:"Demonstrates both the length factor and the Ohm's-law method together." }},
+   ]},
+
+ { id:"magnetism", title:"Magnetism", subject:"phys", icon:"🧲", blurb:"Fields, electromagnets, the motor effect and induction",
+   sections:[
+     { h:"Magnets and magnetic fields", te:{
+       t:"Magnets have north and south poles and produce a magnetic field.",
+       e:"Like poles repel and unlike poles attract; a field is the region where a magnetic force acts.",
+       ev:"Field lines run from north to south outside the magnet, and closer lines mean a stronger field.",
+       va:"The field is strongest at the poles; always draw the arrows pointing N to S.",
+       l:"Fields underpin compasses, electromagnets, motors and generators." }},
+     { h:"Permanent vs induced magnets", te:{
+       t:"Permanent magnets produce their own field; induced magnets are only magnetic while in a field.",
+       e:"Magnetic materials (iron, steel, nickel, cobalt) become induced magnets when placed near a magnet.",
+       ev:"A paperclip stuck to a magnet can itself pick up another paperclip — induced magnetism.",
+       va:"Induced magnetism is always attractive and disappears once the material leaves the field.",
+       l:"Explains why magnets attract unmagnetised iron objects." }},
+     { h:"The Earth's magnetic field and the compass", te:{
+       t:"A compass needle points roughly towards geographic north.",
+       e:"The Earth behaves like a giant bar magnet, and a compass is a tiny magnet that lines up with the field.",
+       ev:"This is evidence that the Earth's core is magnetic.",
+       va:"A plotting compass is also used to map the field around magnets and current-carrying wires.",
+       l:"Shows magnetic fields are real, directional and useful for navigation." }},
+     { h:"Electromagnetism — the field around a current", te:{
+       t:"A current-carrying wire produces a magnetic field around it.",
+       e:"The field only exists while the current flows, and reverses if the current reverses.",
+       ev:"Iron filings and plotting compasses reveal the field pattern.",
+       va:"A bigger current or shorter distance gives a stronger field.",
+       l:"This is the link between electricity and magnetism that makes electromagnets possible." },
+       subs:[
+        { h:"Field around a straight wire", te:{
+          t:"A straight current-carrying wire creates concentric circular field lines.",
+          e:"The direction is given by the right-hand grip rule and reverses with the current.",
+          ev:"Plotting compasses around the wire arrange themselves in circles.",
+          va:"Strength increases with current and decreases with distance from the wire.",
+          l:"Coiling the wire builds on this to make a solenoid." }},
+        { h:"Solenoid (coil)", te:{
+          t:"A solenoid is a coil of wire whose field resembles a bar magnet's.",
+          e:"The field inside is strong and uniform, and the ends act as north and south poles.",
+          ev:"Adding an iron core greatly increases the field strength, making an electromagnet.",
+          va:"Strength is increased by more turns, a larger current, or an iron core.",
+          l:"Directly leads to the electromagnet and its uses." }},
+       ]},
+     { h:"Electromagnets and their uses", te:{
+       t:"An electromagnet is a solenoid with an iron core that can be switched on and off.",
+       e:"Its magnetic field only exists while current flows.",
+       ev:"Used in scrapyard cranes, electric bells, relays and maglev trains.",
+       va:"Its advantage over a permanent magnet is that it can be switched on and off and varied in strength.",
+       l:"Controllable magnetism is what makes motors and many devices possible." }},
+     { h:"The motor effect", te:{
+       t:"A current-carrying wire placed in a magnetic field experiences a force.",
+       e:"The wire's own field interacts with the external field and the wire is pushed.",
+       ev:"The size of the force is F = B I L (flux density × current × length).",
+       va:"The force is greatest when the wire is at 90° to the field, and zero when parallel to it.",
+       l:"This is the basis of the electric motor and the loudspeaker." },
+       subs:[
+        { h:"Fleming's left-hand rule", te:{
+          t:"Fleming's left-hand rule gives the direction of the force.",
+          e:"Thumb shows Force/motion, first finger the Field (N to S), second finger the Current.",
+          ev:"Reversing either the current or the field reverses the direction of the force.",
+          va:"Use the LEFT hand for the motor effect — a common error is reaching for the right.",
+          l:"It predicts which way a motor coil will turn." }},
+        { h:"Calculating the force", te:{
+          t:"The force is calculated with F = B I L.",
+          e:"B is in tesla, I in amps and L in metres.",
+          ev:"With B = 0.5 T, I = 2 A, L = 0.1 m: F = 0.5 × 2 × 0.1 = 0.1 N.",
+          va:"The equation only applies when the wire is perpendicular to the field.",
+          l:"Lets you design and compare motor strengths quantitatively." }},
+       ]},
+     { h:"The electric motor", te:{
+       t:"A motor uses the motor effect to spin a coil continuously.",
+       e:"Forces act in opposite directions on opposite sides of the coil, creating a turning effect.",
+       ev:"A split-ring commutator reverses the current every half-turn so the coil keeps rotating the same way.",
+       va:"Without the commutator the coil would just rock back and forth instead of spinning.",
+       l:"Converts electrical energy to kinetic energy in countless everyday devices." }},
+     { h:"Electromagnetic induction (Higher)", te:{
+       t:"A changing magnetic field through a conductor induces a potential difference.",
+       e:"Moving a magnet near a coil, or a coil through a field, generates a voltage.",
+       ev:"The induced p.d. is larger with faster movement, more turns, or a stronger magnet.",
+       va:"This is the reverse of the motor effect — movement produces electricity rather than the other way round.",
+       l:"It is the principle behind generators and transformers." },
+       subs:[
+        { h:"The generator", te:{
+          t:"A generator induces a current by rotating a coil in a magnetic field.",
+          e:"As the coil cuts through field lines, an alternating current is induced.",
+          ev:"Slip rings give an a.c. output that looks like a sine wave.",
+          va:"Faster rotation increases both the frequency and the peak voltage.",
+          l:"This is how mains electricity is generated in power stations." }},
+        { h:"The transformer", te:{
+          t:"A transformer changes the size of an alternating voltage.",
+          e:"Alternating current in the primary coil makes a changing field in the iron core, inducing a voltage in the secondary coil.",
+          ev:"Vp ÷ Vs = Np ÷ Ns; a step-up transformer has more turns on the secondary.",
+          va:"Transformers only work with a.c., and ideal ones assume Vp Ip = Vs Is (100% efficient).",
+          l:"They let the National Grid transmit power at high voltage to reduce energy losses." }},
+       ]},
+   ]},
+
+ { id:"lifediversity", title:"Life diversity", subject:"bio", icon:"🌿", blurb:"Variation, evolution, classification and biodiversity",
+   sections:[
+     { h:"Variation", te:{
+       t:"Variation is the differences between individuals of a species.",
+       e:"It is caused by genes, the environment, or a combination of both.",
+       ev:"Eye colour is genetic, a scar is environmental, and height is influenced by both.",
+       va:"Variation can be continuous (a range, like height) or discontinuous (distinct groups, like blood type).",
+       l:"Variation is the raw material that natural selection acts on." },
+       subs:[
+        { h:"Genetic variation", te:{
+          t:"Genetic variation comes from different alleles.",
+          e:"It arises through mutations and the mixing of alleles in sexual reproduction.",
+          ev:"Mutations are random changes in DNA; most are neutral, a few harmful, occasionally one is beneficial.",
+          va:"Only genetic variation is inherited, so only it can drive evolution.",
+          l:"Beneficial alleles are selected for over generations." }},
+        { h:"Environmental variation", te:{
+          t:"Environmental variation is caused by surroundings, not genes.",
+          e:"Diet, climate and lifestyle all shape characteristics.",
+          ev:"A plant grown in shade grows tall and spindly reaching for light.",
+          va:"This type of variation is not passed on to offspring.",
+          l:"It captures the 'nurture' side of the nature-nurture distinction." }},
+       ]},
+     { h:"Evolution by natural selection", te:{
+       t:"Species change over time through natural selection, as proposed by Darwin.",
+       e:"Individuals with advantageous variations are more likely to survive, reproduce and pass on their alleles.",
+       ev:"The steps are: variation, competition, survival of the best-suited, inheritance, repeated over many generations.",
+       va:"'Survival of the fittest' means best-suited to the environment, not the strongest or fastest.",
+       l:"It explains how all of life's diversity arose from common ancestors." }},
+     { h:"Evidence for evolution", te:{
+       t:"Several independent lines of evidence support evolution.",
+       e:"The strongest at GCSE are the fossil record and antibiotic resistance.",
+       ev:"Both show change in organisms over time, one slow and one fast.",
+       va:"Each has limitations, but together they make evolution very well supported.",
+       l:"They turn evolution from a theory into an evidenced explanation." },
+       subs:[
+        { h:"Fossils", te:{
+          t:"Fossils show how organisms have changed over millions of years.",
+          e:"They form from hard parts, casts or preservation where decay is prevented.",
+          ev:"The fossil record reveals gradual change, such as the evolution of the horse.",
+          va:"The record is incomplete because soft-bodied organisms rarely fossilise and many traces are destroyed.",
+          l:"It provides a long-term timeline of life on Earth." }},
+        { h:"Antibiotic resistance", te:{
+          t:"Bacteria evolving antibiotic resistance is natural selection we can observe directly.",
+          e:"A chance mutation makes some bacteria resistant; antibiotics kill the rest, so the resistant ones survive and multiply.",
+          ev:"MRSA is a well-known resistant 'superbug'.",
+          va:"It is slowed by finishing antibiotic courses and not overusing them.",
+          l:"It is a fast, real-world demonstration of evolution in action." }},
+       ]},
+     { h:"Selective breeding", te:{
+       t:"Selective breeding is humans choosing which organisms reproduce to get desired traits.",
+       e:"Parents with the wanted characteristic are bred together, and this is repeated over many generations.",
+       ev:"Used to produce high-yield crops, productive livestock and particular dog breeds.",
+       va:"It reduces genetic variation, leading to inbreeding and greater vulnerability to disease.",
+       l:"It is an artificial, human-directed version of natural selection." }},
+     { h:"Genetic engineering", te:{
+       t:"Genetic engineering transfers a gene from one organism into another.",
+       e:"A desired gene is cut out and inserted into the genome of a different organism.",
+       ev:"Bacteria are engineered to make human insulin, and crops are modified to resist pests.",
+       va:"It offers benefits like higher yields and medicines, but raises ethical and ecological concerns.",
+       l:"It is a faster, more precise alternative to selective breeding." }},
+     { h:"Classification", te:{
+       t:"Classification organises living things into related groups.",
+       e:"Early systems used physical structure; modern ones use genetics.",
+       ev:"The Linnaean hierarchy and the three-domain system are the key examples.",
+       va:"Improved technology has refined classification, showing science updates with new evidence.",
+       l:"It gives biologists a shared, evolutionary framework." },
+       subs:[
+        { h:"The Linnaean system", te:{
+          t:"Linnaeus grouped organisms by structure into a hierarchy.",
+          e:"The levels are Kingdom, Phylum, Class, Order, Family, Genus, Species.",
+          ev:"The binomial name combines genus and species, e.g. Homo sapiens.",
+          va:"Correct conventions (capital genus, lower-case species, italics) often carry marks.",
+          l:"It created a common naming language used worldwide." }},
+        { h:"The three domains", te:{
+          t:"Woese proposed three domains using genetic analysis.",
+          e:"They are Archaea, Bacteria and Eukaryota.",
+          ev:"The grouping is based on RNA and DNA differences not visible in structure.",
+          va:"It shows how new evidence (genetics) can overturn older, structure-based models.",
+          l:"It better reflects true evolutionary relationships." }},
+       ]},
+     { h:"Biodiversity and its importance", te:{
+       t:"Biodiversity is the variety of all living things in an ecosystem.",
+       e:"High biodiversity makes ecosystems more stable and resilient to change.",
+       ev:"Food webs with many species cope better when one species is lost.",
+       va:"Human activities such as deforestation, pollution and climate change reduce biodiversity.",
+       l:"Protecting it safeguards the ecosystem services that humans depend on." }},
+     { h:"Maintaining biodiversity", te:{
+       t:"Conservation measures aim to protect biodiversity.",
+       e:"These include breeding programmes, protected areas, reduced deforestation and recycling.",
+       ev:"Examples are field margins, hedgerow protection and reforestation schemes.",
+       va:"There is often a conflict between conservation and economic or food-production needs.",
+       l:"It connects biology directly to environmental policy and choices." }},
+   ]},
+
+ { id:"periodictable", title:"Periodic table", subject:"chem", icon:"⚗️", blurb:"Its development, structure, and the trends in groups 1, 7 and 0",
+   sections:[
+     { h:"Development of the periodic table", te:{
+       t:"The modern table developed from earlier attempts, especially Mendeleev's.",
+       e:"Mendeleev arranged elements by atomic mass but left gaps for undiscovered elements and swapped some pairs to fit properties.",
+       ev:"He predicted the properties of missing elements such as germanium, later confirmed.",
+       va:"The table is now ordered by atomic (proton) number, which removed the anomalies once protons were discovered.",
+       l:"It is a clear example of how scientific models improve with new evidence." }},
+     { h:"Structure: groups and periods", te:{
+       t:"The table is arranged in groups (columns) and periods (rows).",
+       e:"The group number equals the number of outer-shell electrons; the period number equals the number of occupied shells.",
+       ev:"Group 1 elements have 1 outer electron; period 3 elements have 3 electron shells.",
+       va:"Elements in the same group react similarly because they have the same number of outer electrons.",
+       l:"Outer-shell electrons explain all the reactivity trends that follow." }},
+     { h:"Metals and non-metals", te:{
+       t:"Metals sit on the left and centre, non-metals on the right.",
+       e:"Metals lose electrons to form positive ions; non-metals gain or share electrons.",
+       ev:"Metals conduct, are malleable and shiny; non-metals are often brittle and insulating.",
+       va:"A staircase line separates them, and a few 'metalloids' sit in between with mixed properties.",
+       l:"Whether elements are metals or non-metals decides their bonding type." }},
+     { h:"Group 1 — the alkali metals", te:{
+       t:"Group 1 metals are very reactive and become more reactive down the group.",
+       e:"They each have 1 outer electron, which is lost easily; further down, that electron is further from the nucleus and lost even more easily.",
+       ev:"Lithium, sodium and potassium react with water to give a metal hydroxide and hydrogen, increasingly vigorously.",
+       va:"Their downward increase in reactivity is the reverse of Group 7 — a classic exam contrast.",
+       l:"It shows directly how electron arrangement drives reactivity." }},
+     { h:"Group 7 — the halogens", te:{
+       t:"Group 7 non-metals become less reactive down the group.",
+       e:"They gain 1 electron to react; lower down, the outer shell is further from the nucleus, so attracting an electron is harder.",
+       ev:"A more reactive halogen displaces a less reactive one from a solution of its salt (displacement).",
+       va:"Melting and boiling points rise down the group, with states changing gas → liquid → solid.",
+       l:"The opposite trend to Group 1, both explained by electron-shell distance." }},
+     { h:"Group 0 — the noble gases", te:{
+       t:"Group 0 gases are very unreactive (inert).",
+       e:"They have full outer electron shells, so no tendency to gain, lose or share electrons.",
+       ev:"Helium fills balloons and argon fills light bulbs, both chosen for being inert.",
+       va:"Their boiling points increase down the group as the atoms get larger.",
+       l:"Full shells explain why other elements react at all — to reach the same stable arrangement." }},
+     { h:"Transition metals", te:{
+       t:"Transition metals in the central block differ from Group 1 metals.",
+       e:"They are harder, denser and much less reactive, with higher melting points.",
+       ev:"They form coloured compounds, have ions with more than one charge (e.g. Fe²⁺ and Fe³⁺) and act as catalysts (e.g. iron in the Haber process).",
+       va:"They react slowly or not at all with water, unlike the vigorous alkali metals.",
+       l:"Their properties make them ideal structural metals and industrial catalysts." }},
+   ]},
+
+ { id:"nutrients", title:"Nutrients", subject:"bio", icon:"🥗", blurb:"The nutrient groups, a balanced diet, and the food tests",
+   sections:[
+     { h:"Carbohydrates", te:{
+       t:"Carbohydrates are the body's main energy source.",
+       e:"They are made of simple sugars such as glucose, joined into starch and complex carbohydrates.",
+       ev:"Found in bread, pasta and rice; they release about 17 kJ per gram.",
+       va:"Excess carbohydrate is stored as glycogen or converted to fat.",
+       l:"Glucose is the fuel used in respiration to release energy." }},
+     { h:"Proteins", te:{
+       t:"Proteins are needed for growth and repair of tissue.",
+       e:"They are built from amino acids and also form enzymes, hormones and antibodies.",
+       ev:"Good sources include meat, fish, eggs, beans and pulses.",
+       va:"They are not stored long-term, so a regular supply is needed; severe deficiency causes kwashiorkor.",
+       l:"All enzymes are proteins, so they control the body's metabolism." }},
+     { h:"Lipids (fats and oils)", te:{
+       t:"Lipids store energy and insulate the body.",
+       e:"They are made of fatty acids and glycerol.",
+       ev:"They provide about 39 kJ per gram, more than twice carbohydrates, and are found in butter, oils and nuts.",
+       va:"They are needed in moderation; too much saturated fat is linked to heart disease.",
+       l:"They also form cell membranes and cushion organs." }},
+     { h:"Vitamins", te:{
+       t:"Vitamins are needed in tiny amounts to stay healthy.",
+       e:"Each vitamin has a specific role, and a lack of one causes a deficiency disease.",
+       ev:"Key examples for GCSE are vitamins A, C and D.",
+       va:"Water-soluble vitamins are not stored, so they are needed more regularly.",
+       l:"They work alongside minerals to keep body systems functioning." },
+       subs:[
+        { h:"Vitamin C", te:{
+          t:"Vitamin C is needed for healthy skin and tissue repair.",
+          e:"It helps the body make connective tissue.",
+          ev:"Found in citrus fruit and vegetables; a deficiency causes scurvy.",
+          va:"It is water-soluble and not stored, so it must be eaten regularly.",
+          l:"Historically linked to sailors who lacked fresh fruit." }},
+        { h:"Vitamin D", te:{
+          t:"Vitamin D helps the body absorb calcium for bones.",
+          e:"It is made in the skin in sunlight and also found in oily fish.",
+          ev:"A deficiency causes rickets, where children's bones become soft and bend.",
+          va:"People with little sun exposure may need it from food or supplements.",
+          l:"It works together with the mineral calcium." }},
+        { h:"Vitamin A", te:{
+          t:"Vitamin A is needed for vision and a healthy immune system.",
+          e:"The body can make it from carotene in some foods.",
+          ev:"Found in liver and carrots; a deficiency causes night blindness.",
+          va:"It can be stored in the liver, so it is not needed every single day.",
+          l:"It links diet directly to the working of the eye." }},
+       ]},
+     { h:"Minerals", te:{
+       t:"Minerals are inorganic nutrients needed in small amounts.",
+       e:"Each has a specific role, and a shortage causes a deficiency.",
+       ev:"Iron and calcium are the key GCSE examples.",
+       va:"They are needed in much smaller amounts than carbohydrates, proteins or fats.",
+       l:"They support the blood, bones and many cell processes." },
+       subs:[
+        { h:"Iron", te:{
+          t:"Iron is needed to make haemoglobin in red blood cells.",
+          e:"Haemoglobin is the molecule that carries oxygen around the body.",
+          ev:"Found in red meat and leafy greens; a deficiency causes anaemia and tiredness.",
+          va:"Demand rises during growth and for people who menstruate.",
+          l:"It connects diet to the circulatory system." }},
+        { h:"Calcium", te:{
+          t:"Calcium is needed for strong bones and teeth.",
+          e:"It also helps blood clotting and muscle contraction.",
+          ev:"Found in dairy products; a shortage weakens bones.",
+          va:"Its absorption depends on having enough vitamin D.",
+          l:"Diet, vitamins and the skeleton are all linked here." }},
+       ]},
+     { h:"Water and fibre", te:{
+       t:"Water and fibre keep the body and digestion working healthily.",
+       e:"Water is the solvent for reactions and transport; fibre adds bulk that moves food through the gut.",
+       ev:"Fibre from wholegrains and vegetables prevents constipation, and about 60% of the body is water.",
+       va:"Fibre is not actually digested, yet it is still essential for gut health.",
+       l:"Both support the digestive system and overall function." }},
+     { h:"A balanced diet and energy", te:{
+       t:"A balanced diet contains the right amounts of every nutrient group.",
+       e:"Energy needs vary with age, sex, activity level and pregnancy.",
+       ev:"Too much energy leads to obesity, too little to starvation, and missing nutrients to deficiency diseases.",
+       va:"'Balanced' is individual — an athlete needs far more energy than someone sedentary.",
+       l:"Diet directly affects long-term health and disease risk." }},
+     { h:"Required practical — food tests", te:{
+       t:"Chemical tests identify which nutrients a food contains.",
+       e:"Each test uses a specific reagent and gives a characteristic colour change.",
+       ev:"Iodine, Benedict's, biuret and the emulsion test cover the main nutrient groups.",
+       va:"Benedict's is semi-quantitative — the final colour indicates how much sugar is present.",
+       l:"It applies nutrient knowledge in a practical, testable way." },
+       subs:[
+        { h:"Starch — iodine test", te:{
+          t:"Iodine solution tests for starch.",
+          e:"A few drops of iodine are added to the sample.",
+          ev:"It turns from orange-brown to blue-black if starch is present.",
+          va:"A clear, reliable colour change makes it a favourite exam test.",
+          l:"Detects a key carbohydrate." }},
+        { h:"Sugars — Benedict's test", te:{
+          t:"Benedict's solution tests for reducing sugars such as glucose.",
+          e:"Benedict's is added and the sample is heated in a water bath.",
+          ev:"It changes from blue to green, yellow, orange or brick-red as sugar increases.",
+          va:"The colour roughly shows how much sugar is present, making it semi-quantitative.",
+          l:"Links to carbohydrates and energy." }},
+        { h:"Protein — biuret test", te:{
+          t:"Biuret reagent tests for protein.",
+          e:"Biuret solution is added to the sample at room temperature.",
+          ev:"It turns from blue to purple or lilac if protein is present.",
+          va:"No heating is needed, unlike the Benedict's test.",
+          l:"Identifies the growth-and-repair nutrient." }},
+        { h:"Lipids — emulsion test", te:{
+          t:"The emulsion (ethanol) test detects lipids.",
+          e:"The sample is mixed with ethanol and then added to water.",
+          ev:"A cloudy white emulsion forms if a lipid is present.",
+          va:"A clear solution means no lipid was detected.",
+          l:"Completes the set of four nutrient tests." }},
+       ]},
+   ]},
+
+ { id:"lightwaves", title:"Light and waves", subject:"phys", icon:"🌈", blurb:"Wave properties, the wave equation, reflection, refraction and the EM spectrum",
+   sections:[
+     { h:"Describing waves", te:{
+       t:"Waves transfer energy without transferring matter.",
+       e:"The medium vibrates as the wave passes, but it does not travel along with the wave.",
+       ev:"A floating cork bobs up and down as a water wave moves past it.",
+       va:"The key idea, often tested, is that energy moves while matter stays put.",
+       l:"This applies to every type of wave." },
+       subs:[
+        { h:"Transverse vs longitudinal", te:{
+          t:"Waves are either transverse or longitudinal.",
+          e:"Transverse waves vibrate perpendicular to their travel; longitudinal waves vibrate parallel, with compressions and rarefactions.",
+          ev:"Light and all electromagnetic waves are transverse, while sound is longitudinal.",
+          va:"Remembering that all EM waves are transverse is a common exam fact.",
+          l:"The type determines how each wave behaves and travels." }},
+        { h:"Wave properties", te:{
+          t:"Waves are described by amplitude, wavelength, frequency and period.",
+          e:"Amplitude is the maximum displacement (linked to energy); wavelength is one full wave; frequency is waves per second in hertz; period is the time for one wave.",
+          ev:"Period and frequency are linked by T = 1 ÷ f.",
+          va:"A bigger amplitude carries more energy; don't confuse amplitude with wavelength.",
+          l:"These quantities feed directly into the wave equation." }},
+       ]},
+     { h:"The wave equation", te:{
+       t:"Wave speed equals frequency multiplied by wavelength.",
+       e:"In symbols, v = f λ, with v in m/s, f in Hz and λ in metres.",
+       ev:"A wave with f = 50 Hz and λ = 2 m travels at v = 50 × 2 = 100 m/s.",
+       va:"All EM waves travel at the same speed in a vacuum, about 3 × 10⁸ m/s.",
+       l:"It connects frequency and wavelength right across the EM spectrum." }},
+     { h:"Reflection", te:{
+       t:"Reflection is when a wave bounces off a surface.",
+       e:"The angle of incidence equals the angle of reflection, both measured from the normal.",
+       ev:"A flat mirror gives clear (specular) reflection; a rough surface gives scattered (diffuse) reflection.",
+       va:"Even diffuse reflection obeys the law of reflection at each individual point.",
+       l:"It explains mirrors and why we can see objects at all." }},
+     { h:"Refraction", te:{
+       t:"Refraction is the bending of a wave as it changes speed entering a new medium.",
+       e:"Light slows and bends towards the normal entering a denser medium, and bends away on leaving.",
+       ev:"A straw looks bent in a glass of water, and a prism splits white light into colours.",
+       va:"The speed and wavelength change, but the frequency stays the same.",
+       l:"It is the basis of lenses and the dispersion of light into a spectrum." }},
+     { h:"The electromagnetic spectrum", te:{
+       t:"The EM spectrum is a family of transverse waves.",
+       e:"There are seven types, all travelling at the speed of light in a vacuum, differing in wavelength and frequency.",
+       ev:"In order of increasing frequency: Radio, Microwave, Infrared, Visible, Ultraviolet, X-ray, Gamma.",
+       va:"Higher frequency means more energy and, for the top end, more danger to cells.",
+       l:"Each wave's uses follow directly from its properties." },
+       subs:[
+        { h:"Uses", te:{
+          t:"Each EM wave is used for jobs that suit its properties.",
+          e:"Lower-energy waves are used for communication and heating, higher-energy ones for imaging and treatment.",
+          ev:"Radio (broadcasting), microwaves (cooking, satellites), infrared (heating, remote controls), visible (sight, fibre optics), UV (security marking), X-rays (medical imaging), gamma (sterilising, treating cancer).",
+          va:"The choice matches the penetration and energy the task needs.",
+          l:"Much of modern technology is built on the spectrum." }},
+        { h:"Dangers", te:{
+          t:"High-frequency EM waves can damage living cells.",
+          e:"UV, X-rays and gamma rays are ionising, so they can damage DNA and cause cancer.",
+          ev:"UV exposure causes skin cancer, and radiographers shield themselves from X-rays.",
+          va:"The risk rises with both the frequency of the wave and the length of exposure.",
+          l:"This is why safety limits and protective shielding exist." }},
+       ]},
+     { h:"Colour", te:{
+       t:"An object's colour depends on which wavelengths of light it reflects.",
+       e:"White light is a mixture of all the visible colours; an object absorbs some and reflects others.",
+       ev:"A red object reflects red light and absorbs the rest; a filter only lets its own colour through.",
+       va:"A red object looks black under pure green light because there is no red light for it to reflect.",
+       l:"It explains filters, vision and coloured stage lighting." }},
+     { h:"Required practical — waves", te:{
+       t:"Measure the frequency, wavelength and speed of waves.",
+       e:"Use a ripple tank for water waves or waves on a string or spring, counting and timing the waves.",
+       ev:"Apply v = f λ using the measured frequency and wavelength.",
+       va:"Use a strobe or freeze-frame for fast waves, and repeat readings for reliability.",
+       l:"It confirms the wave equation by experiment." }},
+   ]},
+];
+const REVISION_BY_ID=Object.fromEntries(REVISION.map(r=>[r.id,r]));
+
 const KEY="bellas_brain_v1";
 function blankEng(){ return {views:0, rewatches:0, watchMs:0, completed:0, liked:false, saved:false, skipped:0, quizAttempts:0, quizCorrect:0, comments:[]}; }
 function defaultState(){ return {
@@ -662,14 +1202,15 @@ function App(){
     <div className="app">
       {view==="home" && <HomePage state={state} setView={setView} play={playQueue} startFeed={()=>playQueue(forYouQueue(state),"foryou")} />}
       {view==="feed" && <Feed {...common} queue={feedQueue} feedMode={feedMode} startId={startId} backToForYou={backToForYou} />}
-      {view==="subjects" && <SubjectsPage state={state} play={playQueue} />}
+      {view==="subjects" && <SubjectsPage state={state} play={playQueue} setView={setView} />}
+      {view==="revise" && <RevisePage />}
       {view==="saved" && <SavedPage state={state} play={playQueue} setView={setView} />}
       {view==="pathway" && <PathwayPage state={state} play={playQueue} />}
       {view==="you" && <YouPage state={state} setState={setState} flash={flash} />}
       {sheet && <Sheet sheet={sheet} state={state} mutateEng={mutateEng} flash={flash} onClose={()=>setSheet(null)} />}
       {toast && <div className="toast">{toast}</div>}
       <nav className="nav">
-        {[{k:"home",i:"🏠",l:"Home"},{k:"feed",i:"🎬",l:"Feed"},{k:"subjects",i:"📚",l:"Subjects"},{k:"saved",i:"🔖",l:"Saved"},{k:"pathway",i:"🧭",l:"Pathway"},{k:"you",i:"📊",l:"You"}].map(it=>(
+        {[{k:"home",i:"🏠",l:"Home"},{k:"feed",i:"🎬",l:"Feed"},{k:"revise",i:"📖",l:"Revise"},{k:"subjects",i:"📚",l:"Subjects"},{k:"saved",i:"🔖",l:"Saved"},{k:"pathway",i:"🧭",l:"Pathway"},{k:"you",i:"📊",l:"You"}].map(it=>(
           <button key={it.k} className={view===it.k?"active":""} onClick={()=>setView(it.k)}><span className="ni">{it.i}</span>{it.l}</button>
         ))}
       </nav>
@@ -730,6 +1271,12 @@ function HomePage({state, setView, play, startFeed}){
             </div>
           </div>
         )}
+
+        <button className="card" style={{width:"100%", textAlign:"left", marginTop:12, border:"none", background:"linear-gradient(135deg, rgba(39,224,196,.20), rgba(124,123,255,.16))", display:"flex", alignItems:"center", gap:12}} onClick={()=>setView("revise")}>
+          <span style={{fontSize:30}}>📖</span>
+          <span style={{flex:1}}><span style={{fontFamily:"var(--font-display)", fontWeight:600, fontSize:16, display:"block"}}>Revision deep-dives</span><span className="dim" style={{fontSize:12.5}}>Detailed TEEEL notes across 6 topics</span></span>
+          <span className="pill">Revise →</span>
+        </button>
 
         <div className="eyebrow" style={{margin:"20px 2px 10px"}}>Jump to</div>
         <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:12}}>
@@ -912,7 +1459,56 @@ function Sheet({sheet,state,mutateEng,flash,onClose}){
 }
 
 /* ---------------- SUBJECTS LIBRARY ---------------- */
-function SubjectsPage({state, play}){
+/* ---------------- TEEEL REVISION ---------------- */
+const TEEEL_PARTS=[
+  {key:"t", label:"Topic", letter:"T", col:"var(--accent)"},
+  {key:"e", label:"Explain", letter:"E", col:"var(--accent-2)"},
+  {key:"ev", label:"Evidence", letter:"E", col:"var(--gold)"},
+  {key:"va", label:"Evaluate", letter:"E", col:"var(--s-englit)"},
+  {key:"l", label:"Link", letter:"L", col:"var(--good)"},
+];
+function TeeelBlock({te}){
+  return (
+    <div className="teeel">
+      {TEEEL_PARTS.map(p=> te[p.key] ? (
+        <div key={p.key} className="teeel-row">
+          <span className="teeel-badge" style={{background:p.col}}>{p.letter}</span>
+          <div><span className="tl">{p.label}</span><span className="tx">{te[p.key]}</span></div>
+        </div>
+      ) : null)}
+    </div>
+  );
+}
+function RevisionReader({guide, onBack}){
+  return (
+    <div className="page">
+      <button className="pill" style={{marginBottom:12}} onClick={onBack}>← All subjects</button>
+      <div className="row" style={{alignItems:"center", gap:12, marginBottom:4}}>
+        <span style={{fontSize:34}}>{guide.icon}</span>
+        <div><h2 style={{margin:0}}>{guide.title}</h2><div className="dim" style={{fontSize:12.5}}>{SUBJECTS[guide.subject].name} · revision deep-dive</div></div>
+      </div>
+      <p className="sub" style={{marginBottom:16}}>{guide.blurb}. Each section uses TEEEL: Topic, Explain, Evidence, Evaluate, Link.</p>
+      <div className="stack">
+        {guide.sections.map((sec,i)=>(
+          <div key={i} className="card rev-sec" style={{"--sc":sc(guide.subject)}}>
+            <h3 style={{fontSize:17}}>{sec.h}</h3>
+            <TeeelBlock te={sec.te} />
+            {sec.subs && sec.subs.map((sub,j)=>(
+              <div key={j} className="rev-sub">
+                <div style={{fontFamily:"var(--font-display)", fontWeight:600, fontSize:14.5, color:sc(guide.subject)}}>{sub.h}</div>
+                <TeeelBlock te={sub.te} />
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+      <button className="pill" style={{margin:"16px 0 4px"}} onClick={onBack}>← Back to all subjects</button>
+    </div>
+  );
+}
+
+/* ---------------- SUBJECTS LIBRARY ---------------- */
+function SubjectsPage({state, play, setView}){
   const [open,setOpen]=useState(null);
   const groups=[
     {label:"Core", keys:["maths","englang","englit","bio","chem","phys"]},
@@ -924,6 +1520,11 @@ function SubjectsPage({state, play}){
     <div className="page">
       <h2>All subjects 📚</h2>
       <p className="sub">Every GCSE subject — exam board, papers and topics. Tap a subject to expand and study.</p>
+      <button className="card" style={{width:"100%", textAlign:"left", marginBottom:18, borderLeft:"5px solid var(--accent-2)", display:"flex", alignItems:"center", gap:12}} onClick={()=>setView("revise")}>
+        <span style={{fontSize:26}}>📖</span>
+        <span style={{flex:1}}><span style={{fontFamily:"var(--font-display)", fontWeight:600, fontSize:15.5, display:"block"}}>Revision deep-dives</span><span className="dim" style={{fontSize:12.5}}>Detailed TEEEL notes · 6 topics</span></span>
+        <span className="pill">Open →</span>
+      </button>
       {groups.map(g=>(
         <div key={g.label} style={{marginBottom:18}}>
           <div className="eyebrow" style={{margin:"0 2px 10px"}}>{g.label}</div>
@@ -954,6 +1555,32 @@ function SubjectsPage({state, play}){
           </div>
         </div>
       ))}
+    </div>
+  );
+}
+
+/* ---------------- REVISE (dedicated tab) ---------------- */
+function RevisePage(){
+  const [guide,setGuide]=useState(null);
+  if(guide) return <RevisionReader guide={REVISION_BY_ID[guide]} onBack={()=>setGuide(null)} />;
+  return (
+    <div className="page">
+      <h2>Revise 📖</h2>
+      <p className="sub">Detailed written revision guides. Every section uses TEEEL: Topic · Explain · Evidence · Evaluate · Link.</p>
+      <div className="stack">
+        {REVISION.map(r=>(
+          <button key={r.id} className="card" onClick={()=>setGuide(r.id)} style={{textAlign:"left", borderLeft:"5px solid "+sc(r.subject), display:"flex", alignItems:"center", gap:12}}>
+            <span className="lb" style={{width:44,height:44,borderRadius:13,display:"grid",placeItems:"center",fontSize:22, background:sc(r.subject)}}>{r.icon}</span>
+            <span style={{flex:1, minWidth:0}}>
+              <span style={{fontFamily:"var(--font-display)", fontWeight:600, fontSize:16, display:"block"}}>{r.title}</span>
+              <span className="dim" style={{fontSize:12.5}}>{SUBJECTS[r.subject].name}</span>
+              <span className="dim" style={{fontSize:12, display:"block"}}>{r.blurb}</span>
+            </span>
+            <span className="pill">Read →</span>
+          </button>
+        ))}
+      </div>
+      <p className="dim" style={{textAlign:"center", fontSize:11.5, marginTop:16}}>More topics can be added any time.</p>
     </div>
   );
 }
