@@ -1,5 +1,6 @@
 /* Bella's Brain service worker — offline app shell.
-   Bump CACHE when you change index.html to push an update. */
+   The app is fully self-contained (React is inlined, no CDN), so we only
+   cache the local files. Bump CACHE when you change index.html. */
 const CACHE = "bellas-brain-v3";
 const ASSETS = [
   "./",
@@ -8,13 +9,9 @@ const ASSETS = [
   "./icon-192.png",
   "./icon-512.png",
   "./apple-touch-icon.png",
-  "./favicon.png",
-  "https://unpkg.com/react@18/umd/react.production.min.js",
-  "https://unpkg.com/react-dom@18/umd/react-dom.production.min.js",
-  "https://unpkg.com/@babel/standalone/babel.min.js"
+  "./favicon.png"
 ];
 
-// Cache each asset individually so one failure doesn't abort the whole install.
 self.addEventListener("install", (e) => {
   e.waitUntil(
     caches.open(CACHE).then((cache) =>
@@ -31,7 +28,6 @@ self.addEventListener("activate", (e) => {
   );
 });
 
-// Cache-first, falling back to network and caching what comes back.
 self.addEventListener("fetch", (e) => {
   if (e.request.method !== "GET") return;
   e.respondWith(

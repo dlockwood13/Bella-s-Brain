@@ -54,4 +54,4 @@ Edit `index.html`, re-upload it, and bump the `CACHE` version near the top of `s
 ## Notes
 
 - Progress (likes, saves, quiz history, pathway) is saved in the browser on each device. Use the **Export** button on the *You* tab to back it up.
-- Offline works after the first online visit, once the service worker has cached the app and its libraries.
+- The app is fully self-contained: React is built in and there are no external scripts, so it works offline and even when opened directly from a downloaded file.
