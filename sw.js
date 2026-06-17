@@ -1,6 +1,6 @@
 /* Bella's Brain service worker — offline app shell.
    Bump CACHE when you change index.html to push an update. */
-const CACHE = "bellas-brain-v2";
+const CACHE = "bellas-brain-v3";
 const ASSETS = [
   "./",
   "./index.html",
